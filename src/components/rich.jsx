@@ -3,7 +3,7 @@ import Icon from "./Icon.jsx";
 import { hasArabic, wordLines, parseWord } from "../lib/parse.js";
 import { speak, warm, cycleSpeed, useSpeechState, useSpeed } from "../lib/speech.js";
 import { fixText } from "../lib/text.js";
-import { layout, dirFor } from "../lib/emphasis.js";
+import { layout, dirFor, splitMixed } from "../lib/emphasis.js";
 import { useLinks, findLinked, titleOf } from "../lib/linkctx.js";
 import { useVocab, setLevel, removeWord, vocabKey } from "../lib/vocab.js";
 
@@ -54,9 +54,26 @@ const Piece = ({ part }) => {
   return n;
 };
 
+/* v3.78 · Arabic phrases are isolated too (<bdi dir="rtl">), exactly like the English ones: in a left-to-right line an Arabic phrase no longer drags the
+   spaces and punctuation around it to the wrong side, and the two languages keep a fixed, predictable order. */
+const AR_RUN = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF][\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u064B-\u0652\s\u060C\u061B\u0660-\u0669]*[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u064B-\u0652]|[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/g;
+const ArPiece = ({ part }) => {
+  const s = part.text;
+  if (!/[\u0600-\u06FF]/.test(s)) return <Piece part={part} />;
+  const out = [];
+  let last = 0, k = 0;
+  for (const m of s.matchAll(AR_RUN)) {
+    if (m.index > last) out.push(s.slice(last, m.index));
+    out.push(<bdi key={k++} dir="rtl">{m[0]}</bdi>);
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push(s.slice(last));
+  return <Piece part={{ ...part, text: out }} />;
+};
+
 const Nodes = ({ nodes }) => nodes.map((nd, i) => nd.run
   ? <bdi key={i} dir="ltr" className="en">{nd.parts.map((p, k) => <Piece key={k} part={p} />)}</bdi>
-  : <React.Fragment key={i}>{nd.parts.map((p, k) => <Piece key={k} part={p} />)}</React.Fragment>);
+  : <React.Fragment key={i}>{nd.parts.map((p, k) => <ArPiece key={k} part={p} />)}</React.Fragment>);
 
 /* the small yellow chip "🔗 مرتبط بسؤال «…»": one element per clause. When the earlier question exists it is a button:
    open it, highlight the matching part for 20 s, and offer a way back (App.jsx openLinked). */
@@ -133,33 +150,48 @@ function splitLi(s) {
   return { head: segs[0], rest: segs.slice(1) };
 }
 
+/* v3.78 · one line → one <p> per language when it holds a whole English sentence and a whole Arabic sentence (see splitMixed) */
+function Lines({ s, cls }) {
+  const parts = splitMixed(s);
+  if (parts.length < 2) return <p className={cls} dir={dirOf(s)}><Inline text={s} /></p>;
+  return <div className={cls ? `${cls} ml` : "ml"} dir={dirOf(s)}>{parts.map((x, i) => <p key={i} className="ml-l" dir={dirOf(x)}><Inline text={x} /></p>)}</div>;
+}
+
 function Block({ b }) {
   switch (b.t) {
     case "h":
       return <h4><i /><span><Inline text={b.s} /></span></h4>;
     case "li": {
       const sp = splitLi(b.s);
-      if (!sp) return <div className="li" dir={dirOf(b.s)} data-v={b.v || undefined}><em /><p><Inline text={b.s} /></p></div>;
+      if (!sp) {
+        const parts = splitMixed(b.s);
+        if (parts.length < 2) return <div className="li" dir={dirOf(b.s)} data-v={b.v || undefined}><em /><p><Inline text={b.s} /></p></div>;
+        return (
+          <div className="li" dir={dirOf(b.s)} data-v={b.v || undefined}><em />
+            <div className="li-body">{parts.map((x, i) => <p key={i} className={i ? "li-sub" : "li-head"} dir={dirOf(x)}><Inline text={x} /></p>)}</div>
+          </div>
+        );
+      }
       /* "Term — meaning — Arabic gloss" → the term on its own line, every part after it on its own calmer line */
       return (
         <div className="li" dir={dirOf(b.s)} data-v={b.v || undefined}><em />
           <div className="li-body">
             <p className="li-head" dir={dirOf(sp.head)}><Inline text={sp.head} /></p>
-            {sp.rest.map((r, i) => <p key={i} className="li-sub" dir={dirOf(r)}><Inline text={r} /></p>)}
+            {sp.rest.flatMap((r) => splitMixed(r)).map((r, i) => <p key={i} className="li-sub" dir={dirOf(r)}><Inline text={r} /></p>)}
           </div>
         </div>
       );
     }
     case "num":
-      return <div className="num" dir={dirOf(b.s)}><b>{b.n}</b><p><Inline text={b.s} /></p></div>;
+      return <div className="num" dir={dirOf(b.s)}><b>{b.n}</b>{splitMixed(b.s).length < 2 ? <p><Inline text={b.s} /></p> : <div className="ml">{splitMixed(b.s).map((x, i) => <p key={i} className="ml-l" dir={dirOf(x)}><Inline text={x} /></p>)}</div>}</div>;
     case "quote":
       return <div className="quote"><span><Inline text={b.s} /></span><SpeakBtn text={b.s} label="اسمع الجملة" /></div>;
     case "tip":
-      return <p className="tip" dir={dirOf(b.s)}><Inline text={b.s} /></p>;
+      return <Lines s={b.s} cls="tip" />;
     case "trans":
       return <p className="trans"><Inline text={b.s} /></p>;
     default:
-      return <p dir={dirOf(b.s)}><Inline text={b.s} /></p>;
+      return <Lines s={b.s} />;
   }
 }
 const BlockMemo = memo(Block, (a, b) => a.b.t === b.b.t && a.b.s === b.b.s && a.b.v === b.b.v && a.b.n === b.b.n);

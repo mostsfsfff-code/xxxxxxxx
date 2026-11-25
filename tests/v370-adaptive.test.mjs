@@ -7,13 +7,16 @@ import * as Router from "../src/lib/router.js";
 import { setExtKeys, setEnginePrefs } from "../src/lib/providers.js";
 import { createAnalysis } from "../src/lib/analysis.js";
 import { briefWith, FULL_DATA, GOOD_CALC, lessonText, CASE_TEXT } from "./helpers-e2e.mjs";
-import { heuristicLevel, parseDifficulty, combineLevels, modeForLevel, routeKey, getRoute, putRoute, clearRoutes, buildDifficultyPrompt } from "../src/lib/difficulty.js";
+import { ROUTER_POLICY, legacyHeuristicLevel, heuristicLevel, parseDifficulty, combineLevels, modeForLevel, routeKey, getRoute, putRoute, clearRoutes, buildDifficultyPrompt } from "../src/lib/difficulty.js";
 import { MODES, tasksFor, sectionsFor } from "../src/lib/config.js";
 
 installFetch();
+ROUTER_POLICY.mode = "hybrid";      // the model-driven tests below exercise the hybrid policy; the local policy (the default) has its own tests at the end
 const EASY_Q = "Which of the following is the normal adult resting heart rate range? A) 60-100 B) 20-40 C) 120-160 D) 200-240";
 const MED_Q = "A nurse is caring for a client with heart failure who has crackles and 2+ pitting edema. Which action should the nurse take first? A) Place the client in high Fowler position B) Offer fluids C) Check the diet order D) Ambulate the client";
 const HARD_Q = `${CASE_TEXT} Calculate the corrected anion gap and Winter expected PaCO2, and explain which interactions with warfarin and amiodarone matter.`;
+/* a hard item the Director is NOT confident about (4 steps: patient + decision + sepsis): the uncertain zone that hybrid sends to the model */
+const SEPSIS_Q = "A nurse is caring for a client with sepsis who has a MAP of 62 mmHg and a lactate of 3.5 mmol/L. Which action should the nurse take first?";
 const CONTRACT = fs.readFileSync(new URL("./fixtures/consultant-case.md", import.meta.url), "utf8");
 
 /* ── pure pieces ── */
@@ -23,6 +26,14 @@ test("rules: easy / medium / hard samples, calculation floor, negative-keyword a
   assert.equal(heuristicLevel(HARD_Q).level, "hard");
   assert.equal(heuristicLevel("Calculate the infusion rate in mL/hr for heparin 18 units/kg/hr, patient weighs 80 kg, bag 25,000 units in 500 mL.").calc, true);
   assert.ok(heuristicLevel("Which statement is EXCEPT correct about warfarin and digoxin interaction? Patient on warfarin and amiodarone.").score >= 4);
+});
+
+test("rules: the potassium range question (answer options full of mEq/L) is SURE easy; units in options are not dosing", () => {
+  const K = "Which of the following is the normal adult serum potassium range?\nA) 1.5–2.5 mEq/L\nB) 3.5–5.0 mEq/L\nC) 6.0–7.5 mEq/L\nD) 8.0–9.5 mEq/L";
+  const r = heuristicLevel(K);
+  assert.equal(r.level, "easy"); assert.equal(r.sure, "easy"); assert.equal(r.calc, false);
+  assert.equal(heuristicLevel(MED_Q).sure, null, "a clinical vignette is never sure-easy");
+  assert.equal(heuristicLevel(HARD_Q).sure, "hard");
 });
 
 test("verdict parsing: strict JSON, fenced JSON, loose word, garbage", () => {
@@ -54,7 +65,8 @@ test("presets: level → mode, small key never asks the strong lane; hidden pres
 test("classifier prompt: asks for one JSON line, forbids answering, prefers the higher level", () => {
   const p = buildDifficultyPrompt();
   assert.match(p.system, /Do NOT answer/);
-  assert.match(p.system, /choose the HIGHER/);
+  assert.match(p.system, /Choose the HIGHER level only when/);
+  assert.match(p.system, /normal value, a definition or a name is EASY/);
   assert.match(p.system, /"level":"easy\|medium\|hard"/);
 });
 
@@ -103,12 +115,21 @@ async function run({ text, verdict, modeId = "auto", withWords = true, routeFail
 }
 const count = (k, x) => k.filter((y) => y === x).length;
 
-test("E2E easy: the router asks once, the preset is 'light' (no silent solve)", async () => {
-  const r = await run({ text: EASY_Q, verdict: '{"level":"easy","reason":"recall"}' });
-  assert.equal(count(r.kinds, "route"), 1);
+test("E2E easy + SURE: no router request at all; preset 'light' = ONE generative request (plus the optional word list)", async () => {
+  const r = await run({ text: EASY_Q, verdict: '{"level":"hard"}', withWords: false });
+  assert.equal(count(r.kinds, "route"), 0, "the rules were sure: the model is not asked and nobody waits for it");
   assert.equal(count(r.kinds, "solve"), 0);
-  assert.equal(r.routes[0].mode, "light");
-  assert.equal(r.routes[0].level, "easy");
+  assert.equal(r.kinds.length, 1, "one request writes the whole compact lesson");
+  assert.equal(r.routes[0].mode, "light"); assert.equal(r.routes[0].level, "easy"); assert.equal(r.routes[0].source, "rules");
+});
+
+test("E2E light preset: compact prompt, lightest lane first", async () => {
+  let sys = "", firstModel = "";
+  reset(); Router.__resetRouter(); window.localStorage.clear(); setExtKeys({}); setEnginePrefs({ mode: "auto" });
+  for (const m of ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-pro-latest", "gemini-3.1-pro-preview"]) script(`gemini:${m}`, { ok: (b) => { if (!firstModel) { firstModel = m; sys = String(b?.systemInstruction?.parts?.[0]?.text || ""); } return lessonText("body"); } });
+  await new Promise((resolve) => { createAnalysis({ kind: "question", history: [], dataUrl: null, doc: { kind: "text", name: "q.txt", text: EASY_Q }, extra: "", chips: [], apiKey: `AIzaV370L${++seq}`, modeId: "auto", withWords: false, onRoute() {}, onUpdate() {}, onDone: (n) => n === "reason" && resolve(), onError: () => resolve(), onNotice() {}, onTrust() {} }).start(); setTimeout(resolve, 6000); });
+  assert.match(sys, /COMPACT LESSON/);
+  assert.equal(firstModel, "gemini-flash-lite-latest");
 });
 
 test("E2E medium: today's balanced preset, with its silent solve", async () => {
@@ -117,20 +138,30 @@ test("E2E medium: today's balanced preset, with its silent solve", async () => {
   assert.equal(count(r.kinds, "solve"), 1);
 });
 
-test("E2E hard: a small (free) key gets 'deepflash', and the strong lane is not asked", async () => {
-  const r = await run({ text: HARD_Q, verdict: '{"level":"hard","reason":"multi-system"}' });
+test("E2E hard + SURE: no router request; a small (free) key gets 'deepflash'", async () => {
+  const r = await run({ text: HARD_Q, verdict: '{"level":"easy"}' });
+  assert.equal(count(r.kinds, "route"), 0);
+  assert.equal(r.routes[0].level, "hard");
+  assert.equal(r.routes[0].mode, "deepflash");
+});
+
+test("E2E hard by the model (uncertain zone): a small (free) key gets 'deepflash', and the strong lane is not asked", async () => {
+  const r = await run({ text: SEPSIS_Q, verdict: '{"level":"hard","reason":"multi-system"}' });
+  assert.equal(count(r.kinds, "route"), 1);
   assert.equal(r.routes[0].mode, "deepflash");
   assert.equal(count(r.kinds, "solve"), 1);
 });
 
 test("E2E easy costs fewer generative requests than medium (the point of the router)", async () => {
-  const e = await run({ text: EASY_Q, verdict: '{"level":"easy"}' });
+  const e = await run({ text: EASY_Q, verdict: '{"level":"easy"}', withWords: false });
   const m = await run({ text: MED_Q, verdict: '{"level":"medium"}' });
-  assert.ok(e.kinds.length < m.kinds.length, `easy ${e.kinds.length} vs medium ${m.kinds.length}`);
+  const m2 = await run({ text: MED_Q, verdict: '{"level":"medium"}', withWords: false });
+  assert.ok(e.kinds.length < m2.kinds.length, `easy ${e.kinds.length} vs medium ${m2.kinds.length}`);
 });
 
 test("E2E safety floor: the model says easy, the rules say hard → medium, never easy", async () => {
-  const r = await run({ text: HARD_Q, verdict: '{"level":"easy","reason":"short"}' });
+  const r = await run({ text: SEPSIS_Q, verdict: '{"level":"easy","reason":"short"}' });
+  assert.equal(count(r.kinds, "route"), 1);
   assert.equal(r.routes[0].level, "medium");
   assert.equal(r.routes[0].floored, true);
 });
@@ -184,4 +215,68 @@ test("E2E a manual mode is respected: no router request", async () => {
   const r = await run({ text: MED_Q, verdict: "", modeId: "balanced" });
   assert.equal(count(r.kinds, "route"), 0);
   assert.equal(r.routes.length, 0);
+});
+
+test("E2E the exact potassium question: rules-sure easy, ONE request, no router wait, no empty Mnemonic label", async () => {
+  const K = "Which of the following is the normal adult serum potassium range?\nA) 1.5–2.5 mEq/L\nB) 3.5–5.0 mEq/L\nC) 6.0–7.5 mEq/L\nD) 8.0–9.5 mEq/L";
+  const r = await run({ text: K, verdict: '{"level":"hard"}', withWords: false });
+  assert.equal(r.kinds.length, 1);
+  assert.equal(r.routes[0].mode, "light");
+});
+
+test("guard: an empty memory-tip label is dropped silently and is not counted as a leak", async () => {
+  const { stripLeaks } = await import("../src/lib/guard.js");
+  const out = stripLeaks("- **Trap:** x\n💡 **Mnemonic:**\n", "", true);
+  assert.equal(out.leaks, 0);
+  assert.ok(!/Mnemonic/.test(out.text));
+  assert.equal(stripLeaks("حيلة\n", "", true).text.trim(), "حيلة");
+});
+
+/* ── v3.72 · LOCAL policy: every question is rated by the rules, no router request ever ── */
+test("LOCAL policy is the shipped default", async () => {
+  const fresh = await import("../src/lib/difficulty.js?default-check");
+  assert.equal(fresh.ROUTER_POLICY.mode, "local");
+});
+
+test("local verdict: easy needs positive evidence; what the rules cannot place is medium, never easy", () => {
+  assert.equal(heuristicLevel(EASY_Q).local, "easy");
+  assert.equal(heuristicLevel(MED_Q).local, "medium");
+  assert.equal(heuristicLevel(HARD_Q).local, "hard");
+  const longPlain = "Explain the general role of the kidneys in maintaining the balance of water and salts in the body and why this balance matters for health, for children and for older adults, in a way a first year student can follow. ".repeat(3);
+  assert.equal(legacyHeuristicLevel(longPlain).level, "easy");
+  assert.equal(legacyHeuristicLevel(longPlain).local, "medium", "long, no recall signal: not provably easy");
+  assert.ok(["medium", "hard"].includes(heuristicLevel(longPlain).level), "an open explain-why request is never easy");
+  assert.equal(heuristicLevel("Which of these is EXCEPT a sign of hypokalemia? A) weakness B) cramps C) peaked T waves D) ileus").local, "medium");
+});
+
+for (const [name, text, level, mode] of [["easy", EASY_Q, "easy", "light"], ["medium", MED_Q, "medium", "balanced"], ["hard", HARD_Q, "hard", "deepflash"]]) {
+  test(`E2E local policy (${name}): rated locally, ZERO router requests, preset ${mode}`, async () => {
+    ROUTER_POLICY.mode = "local";
+    try {
+      const r = await run({ text, verdict: '{"level":"hard"}', withWords: false });
+      assert.equal(count(r.kinds, "route"), 0);
+      assert.equal(r.routes[0].level, level);
+      assert.equal(r.routes[0].mode, mode);
+      assert.equal(r.routes[0].source, "local");
+    } finally { ROUTER_POLICY.mode = "hybrid"; }
+  });
+}
+
+test("E2E local policy: Retry still goes one level deeper, with no request", async () => {
+  ROUTER_POLICY.mode = "local";
+  try {
+    const first = await run({ text: MED_Q, verdict: "", withWords: false });
+    first.a.retry("reason");
+    await new Promise((r) => setTimeout(r, 400));
+    assert.equal(first.routes.at(-1).level, "hard");
+    assert.equal(count(first.kinds, "route"), 0);
+  } finally { ROUTER_POLICY.mode = "hybrid"; }
+});
+
+test("E2E local policy: an image/scan with no readable text is treated as MEDIUM, not easy", async () => {
+  ROUTER_POLICY.mode = "local";
+  try {
+    const r = await run({ text: " ", verdict: "", withWords: false });
+    assert.equal(r.routes[0].level, "medium");
+  } finally { ROUTER_POLICY.mode = "hybrid"; }
 });

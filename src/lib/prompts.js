@@ -104,16 +104,16 @@ export function buildSolvePrompt(profile) {
 
 THINK FIRST (reasoning comes BEFORE the answer):
 1. Read all supplied facts, units, dates, sections, exhibits and actual choices. Separate current from historical/baseline values. Treat NOT/EXCEPT as answer-polarity keywords only when they belong to the actual question directive, not general instructions or negative clinical findings.
-2. Identify immediate threats and distinguish confirmed facts, inferences, alternatives and unknowns. If an emergency is described, put urgent safety priorities first.
+2. Identify immediate threats; separate confirmed facts, inferences and unknowns; put urgent safety priorities first.
 3. If actual options exist, assess EVERY supplied option independently. If no options exist, answer the requested open task directly; do not invent letters, options, distractors or an MCQ answer.
 4. For calculations, show the formula and use only provided inputs. Preserve each value's time, sample, site, unit and status. Never merge baseline and current measurements.
-5. Check the strongest alternative explanation and identify what cannot be concluded. Do not fabricate missing findings, doses, references or guideline claims.
+5. Check the strongest alternative and what cannot be concluded. Never fabricate findings, doses or references.
 6. Write PREMISE (brief reasoning) immediately BEFORE ANSWER; only THEN commit to ANSWER.
 
 OUTPUT — plain text, English only, no markdown, exactly these lines in this order:
 PREMISE: <clinical core in 1-2 short clauses, max 20 words>
 ANSWER: <letters only if real options are supplied; otherwise a concise direct conclusion or requested plan>
-TYPE: <MCQ | SATA | open-ended clinical case | safety | pharmacology | calculation | source-only …>
+TYPE: <MCQ | SATA | open case | safety | pharmacology | calculation | source-only>
 KEYWORD: <decisive directive, or NOT APPLICABLE for an open task, max 10 words>
 CONCEPTS: <2 to 4 core concepts separated by ";">
 DATA: <all decisive numerical inputs relevant to calculations, exact values and units as key=value pairs; max 80 words; omit absent fields>
@@ -318,7 +318,17 @@ ${styleTail(chips, extra, profile)}${linkBlock(history, "question", extra)}Start
        ===EXPLANATION=== … ===TRICKS=== …
    (marker lines instead of JSON on purpose: they stream token by token, so the student still sees the text while it is written,
    and one broken quote can never throw the whole answer away.) */
-export function buildLessonPrompt({ profile, history, brief, extra, chips, words, calculationHandoff = "" }) {
+/* v3.71 · COMPACT (EASY item, mode "light"): the student asked a recall question and must not wait for a nine-section lesson. Same quality bar, far fewer sections. */
+const COMPACT_BLOCK = `
+COMPACT LESSON — this item was judged EASY (recall). Write ONLY these parts and nothing else, each as short as it can be while staying correct:
+• ask: ONE bullet (what is being asked).
+• basics: at most 2 concepts; each = **Term** — a simple definition, then 2 to 3 key facts (ranges, units, signs). No analogy, no "why" chain.
+• answer: the letter and ONE line why.
+• options (only if real options exist): ONE short line per option with ✅ or ❌.
+• memo: 2 short sentences with translation.
+• TRICKS: 1 or 2 bullets. No memory-tip line.
+OMIT completely: decode-the-English, step-by-step thinking, "if the question changed", analogies section, any mnemonic.`;
+export function buildLessonPrompt({ profile, history, brief, extra, chips, words, calculationHandoff = "", compact = false }) {
   const H = headings(chips);
   const ground = brief
     ? `The user message contains a preliminary solve brief. Use it as the starting analysis, NOT as unquestionable ground truth. Re-read the original question and options, verify that every stated datum is actually present, and independently check the decisive reasoning. Reconcile the brief with any supplied specialized references, their applicability conditions and exceptions. If the brief clearly conflicts with the question or a directly applicable, approved reference, correct the answer before teaching. Never invent missing case data.`
@@ -373,6 +383,7 @@ TRICKS:
 - 2 to 4 bullets, each like "**Trap name:** short explanation" — tricky keywords, tempting distractors, look-alike words, common student mistakes. Trap names are in English.
 - The last line: "💡 " followed by one short memory tip in English (a standard mnemonic or a rhyme; never an invented acronym; omit the line if none fits) with its Arabic translation in simple words (drug and medical names stay in English letters).
 
+${compact ? COMPACT_BLOCK : ""}
 Length: aim for about ${words} words in total — as deep as the quality bar requires, never padded.
 ${styleTail(chips, extra, profile)}${linkBlock(history, "question", extra)}Start directly with ===EXPLANATION===.`,
     user: brief

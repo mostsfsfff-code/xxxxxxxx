@@ -1,0 +1,146 @@
+[
+ {
+  "id": "TH01",
+  "set": "theory-heldout",
+  "label": "easy",
+  "text": "What is the function of red blood cells?\nA) Fight infection\nB) Carry oxygen\nC) Clot blood\nD) Produce antibodies"
+ },
+ {
+  "id": "TH02",
+  "set": "theory-heldout",
+  "label": "easy",
+  "text": "Which term refers to the study of the causes of disease?\nA) Etiology\nB) Prognosis\nC) Diagnosis\nD) Epidemiology"
+ },
+ {
+  "id": "TH03",
+  "set": "theory-heldout",
+  "label": "easy",
+  "text": "What is homeostasis?\nA) Maintenance of a stable internal environment\nB) Breakdown of food\nC) Production of hormones only\nD) Movement of blood"
+ },
+ {
+  "id": "TH04",
+  "set": "theory-heldout",
+  "label": "easy",
+  "text": "Which structure carries urine from the kidney to the bladder?\nA) Urethra\nB) Ureter\nC) Nephron\nD) Renal vein"
+ },
+ {
+  "id": "TH05",
+  "set": "theory-heldout",
+  "label": "easy",
+  "text": "Which type of tissue connects muscle to bone?\nA) Tendon\nB) Ligament\nC) Cartilage\nD) Fascia"
+ },
+ {
+  "id": "TH06",
+  "set": "theory-heldout",
+  "label": "easy",
+  "text": "Which process describes the movement of water across a semipermeable membrane?\nA) Osmosis\nB) Diffusion\nC) Filtration\nD) Active transport"
+ },
+ {
+  "id": "TH07",
+  "set": "theory-heldout",
+  "label": "easy",
+  "text": "The term prognosis means:\nA) The expected outcome of a disease\nB) The cause of a disease\nC) The treatment plan\nD) The diagnostic test"
+ },
+ {
+  "id": "TH08",
+  "set": "theory-heldout",
+  "label": "easy",
+  "text": "Which cells produce antibodies?\nA) Plasma cells\nB) Neutrophils\nC) Platelets\nD) Erythrocytes"
+ },
+ {
+  "id": "TH09",
+  "set": "theory-heldout",
+  "label": "medium",
+  "text": "Why does edema develop when plasma albumin concentration falls?\nA) Reduced oncotic pressure allows fluid to leave the capillaries\nB) Venous hydrostatic pressure decreases\nC) Lymphatic vessels dilate\nD) Capillary permeability decreases"
+ },
+ {
+  "id": "TH10",
+  "set": "theory-heldout",
+  "label": "medium",
+  "text": "How does the sympathetic nervous system affect the heart?\nA) It increases heart rate and contractility\nB) It decreases heart rate\nC) It has no effect\nD) It only constricts coronary vessels"
+ },
+ {
+  "id": "TH11",
+  "set": "theory-heldout",
+  "label": "medium",
+  "text": "Which statement best describes the difference between sensitivity and specificity of a screening test?\nA) Sensitivity detects true positives; specificity detects true negatives\nB) They are the same measure\nC) Sensitivity detects true negatives; specificity detects true positives\nD) Both measure cost"
+ },
+ {
+  "id": "TH12",
+  "set": "theory-heldout",
+  "label": "medium",
+  "text": "What is the primary purpose of the Frank-Starling mechanism?\nA) To match stroke volume to venous return\nB) To control the heart rhythm\nC) To regulate blood pH\nD) To increase urine output"
+ },
+ {
+  "id": "TH13",
+  "set": "theory-heldout",
+  "label": "medium",
+  "text": "Which statement best explains why antibiotics are ineffective against viral infections?\nA) Viruses lack the cell wall and metabolic targets that antibiotics act on\nB) Viruses are too large\nC) Antibiotics only work in the stomach\nD) Viruses do not cause disease"
+ },
+ {
+  "id": "TH14",
+  "set": "theory-heldout",
+  "label": "medium",
+  "text": "What is the main difference between innate and adaptive immunity?\nA) Innate is immediate and non-specific; adaptive is specific and has memory\nB) Innate has memory; adaptive does not\nC) Adaptive is faster than innate\nD) They use the same cells"
+ },
+ {
+  "id": "TH15",
+  "set": "theory-heldout",
+  "label": "medium",
+  "text": "Why is the loop of Henle important for concentrating urine?\nA) It builds a concentration gradient in the medulla\nB) It filters proteins\nC) It secretes insulin\nD) It stores urine"
+ },
+ {
+  "id": "TH16",
+  "set": "theory-heldout",
+  "label": "medium",
+  "text": "Which statement correctly describes negative feedback?\nA) The response reduces the original stimulus\nB) The response amplifies the stimulus\nC) It only occurs in the brain\nD) It does not maintain balance"
+ },
+ {
+  "id": "TH17",
+  "set": "theory-heldout",
+  "label": "hard",
+  "text": "Which statement best explains why inhibiting the enzyme that converts angiotensin I to angiotensin II lowers blood pressure but can also cause a persistent dry cough, and why blocking the angiotensin II receptor does not produce the cough?\nA) The enzyme also degrades bradykinin, which accumulates when the enzyme is inhibited; receptor blockade leaves the enzyme and bradykinin breakdown untouched\nB) The enzyme also produces histamine, which falls when it is inhibited, while receptor blockade increases histamine\nC) Angiotensin I directly irritates the airway when it accumulates, and receptor blockade removes angiotensin I\nD) The cough is caused by potassium loss, which receptor blockade prevents"
+ },
+ {
+  "id": "TH18",
+  "set": "theory-heldout",
+  "label": "hard",
+  "text": "A researcher blocks the Na-K-2Cl cotransporter in the thick ascending limb. Which combination of changes in urine concentrating ability, medullary interstitial osmolality and calcium excretion would be expected, and why?\nA) Impaired concentrating ability, reduced medullary gradient, increased calcium excretion because the lumen-positive potential is lost\nB) Improved concentrating ability, increased medullary gradient, decreased calcium excretion\nC) No change in concentrating ability, increased medullary gradient, increased calcium excretion\nD) Impaired concentrating ability, increased medullary gradient, decreased calcium excretion"
+ },
+ {
+  "id": "TH19",
+  "set": "theory-heldout",
+  "label": "hard",
+  "text": "Differentiate the mechanisms by which type I and type IV hypersensitivity reactions cause tissue damage, and explain why antihistamines help in only one of them.\nA) Type I is IgE-mediated mast cell degranulation within minutes and is histamine-driven; type IV is T-cell mediated and delayed, so antihistamines do not address it\nB) Type I is T-cell mediated and delayed; type IV is IgE-mediated\nC) Both are IgE-mediated but differ in speed\nD) Both are complement-mediated; antihistamines block complement"
+ },
+ {
+  "id": "TH20",
+  "set": "theory-heldout",
+  "label": "hard",
+  "text": "If hepatic synthesis of the vitamin K-dependent clotting factors is impaired but platelet count is normal, which pattern of PT and aPTT and which bleeding pattern are expected, and why does vitamin K correct it only when the liver parenchyma is intact?\nA) Prolonged PT first then aPTT, mucosal and soft-tissue bleeding; vitamin K supplies a cofactor but cannot restore synthesis in damaged hepatocytes\nB) Normal PT and prolonged aPTT, petechiae; vitamin K replaces platelets\nC) Shortened PT, joint bleeding; vitamin K increases platelets\nD) Normal PT and aPTT, bruising; vitamin K is never effective"
+ },
+ {
+  "id": "TH21",
+  "set": "theory-heldout",
+  "label": "hard",
+  "text": "Why does the positive predictive value of a test fall as disease prevalence falls, even when sensitivity and specificity stay the same?\nA) Because the share of false positives among all positives rises when few people truly have the disease\nB) Because sensitivity decreases with prevalence\nC) Because specificity increases with prevalence\nD) Because the test becomes less accurate in low-risk groups"
+ },
+ {
+  "id": "TH22",
+  "set": "theory-heldout",
+  "label": "hard",
+  "text": "Which statement correctly distinguishes pre-renal, intrinsic and post-renal causes of acute kidney injury using urine sodium, urine osmolality and the response to a fluid challenge?\nA) Pre-renal: low urine sodium, concentrated urine, improves with fluids; intrinsic tubular: high urine sodium, isosthenuria, no improvement; post-renal: variable and relieved by decompression\nB) Pre-renal: high urine sodium, dilute urine; intrinsic: low urine sodium\nC) All three have identical urine indices\nD) Post-renal always shows low urine sodium and improves with fluids"
+ },
+ {
+  "id": "TH23",
+  "set": "theory-heldout",
+  "label": "hard",
+  "text": "Compare the effects of increased afterload and decreased contractility on stroke volume, end-systolic volume and ejection fraction, and explain why they can produce similar ejection fractions yet need different management.\nA) Both raise end-systolic volume and lower stroke volume; afterload excess is addressed by vasodilation, contractility loss by inotropic support or its cause\nB) Increased afterload lowers end-systolic volume\nC) Decreased contractility raises ejection fraction\nD) They are identical and managed the same"
+ },
+ {
+  "id": "TH24",
+  "set": "theory-heldout",
+  "label": "hard",
+  "text": "Why does a competitive antagonist shift the dose-response curve to the right without changing the maximal response, while a non-competitive antagonist lowers the maximum?\nA) The competitive antagonist can be overcome by raising agonist concentration; the non-competitive one removes functional receptors or blocks signalling irreversibly\nB) The competitive antagonist increases receptor number\nC) The non-competitive antagonist raises agonist affinity\nD) Both act by changing agonist metabolism"
+ }
+]

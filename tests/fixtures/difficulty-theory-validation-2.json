@@ -1,0 +1,146 @@
+[
+ {
+  "id": "T201",
+  "set": "theory-validation-2",
+  "label": "easy",
+  "text": "Which organelle is known as the powerhouse of the cell?\nA) Mitochondrion\nB) Ribosome\nC) Lysosome\nD) Golgi apparatus"
+ },
+ {
+  "id": "T202",
+  "set": "theory-validation-2",
+  "label": "easy",
+  "text": "What is the medical term for an elevated white blood cell count?\nA) Leukocytosis\nB) Leukopenia\nC) Erythrocytosis\nD) Thrombocytosis"
+ },
+ {
+  "id": "T203",
+  "set": "theory-validation-2",
+  "label": "easy",
+  "text": "Which gland regulates metabolism through thyroxine?\nA) Thyroid\nB) Pituitary\nC) Adrenal\nD) Pancreas"
+ },
+ {
+  "id": "T204",
+  "set": "theory-validation-2",
+  "label": "easy",
+  "text": "What is the term for the death of tissue?\nA) Necrosis\nB) Atrophy\nC) Hypertrophy\nD) Metaplasia"
+ },
+ {
+  "id": "T205",
+  "set": "theory-validation-2",
+  "label": "easy",
+  "text": "Which part of the nephron is the site of filtration?\nA) Glomerulus\nB) Proximal tubule\nC) Loop of Henle\nD) Collecting duct"
+ },
+ {
+  "id": "T206",
+  "set": "theory-validation-2",
+  "label": "easy",
+  "text": "Which type of white blood cell is the most abundant in normal blood?\nA) Neutrophil\nB) Eosinophil\nC) Basophil\nD) Monocyte"
+ },
+ {
+  "id": "T207",
+  "set": "theory-validation-2",
+  "label": "easy",
+  "text": "What is the name of the valve between the left atrium and the left ventricle?\nA) Mitral valve\nB) Tricuspid valve\nC) Aortic valve\nD) Pulmonic valve"
+ },
+ {
+  "id": "T208",
+  "set": "theory-validation-2",
+  "label": "easy",
+  "text": "Which vitamin deficiency causes rickets in children?\nA) Vitamin D\nB) Vitamin A\nC) Vitamin C\nD) Vitamin E"
+ },
+ {
+  "id": "T209",
+  "set": "theory-validation-2",
+  "label": "medium",
+  "text": "What is the role of the hypothalamus in temperature regulation?\nA) It acts as the body's thermostat and triggers heat-gain or heat-loss responses\nB) It stores heat in the skin\nC) It produces sweat directly\nD) It has no role"
+ },
+ {
+  "id": "T210",
+  "set": "theory-validation-2",
+  "label": "medium",
+  "text": "How does dehydration affect blood viscosity?\nA) It increases viscosity because plasma volume falls relative to cells\nB) It decreases viscosity\nC) It has no effect\nD) It converts plasma to serum"
+ },
+ {
+  "id": "T211",
+  "set": "theory-validation-2",
+  "label": "medium",
+  "text": "Why do capillaries have very thin walls?\nA) To allow efficient exchange of gases, nutrients and wastes\nB) To withstand high pressure\nC) To store blood\nD) To carry blood quickly to the heart"
+ },
+ {
+  "id": "T212",
+  "set": "theory-validation-2",
+  "label": "medium",
+  "text": "What is the difference between a bacterium and a virus?\nA) Bacteria are living cells that can reproduce on their own; viruses need a host cell to replicate\nB) Viruses are larger than bacteria\nC) Bacteria cannot cause disease\nD) They are identical"
+ },
+ {
+  "id": "T213",
+  "set": "theory-validation-2",
+  "label": "medium",
+  "text": "How does the kidney respond to a low blood volume?\nA) It releases renin and retains sodium and water\nB) It increases urine output\nC) It stops filtering\nD) It releases insulin"
+ },
+ {
+  "id": "T214",
+  "set": "theory-validation-2",
+  "label": "medium",
+  "text": "Why does sympathetic stimulation dilate the bronchi?\nA) Beta-2 receptor activation relaxes bronchial smooth muscle\nB) Alpha receptors constrict airways\nC) It increases mucus only\nD) It lowers the respiratory rate"
+ },
+ {
+  "id": "T215",
+  "set": "theory-validation-2",
+  "label": "medium",
+  "text": "What is the purpose of the selective permeability of the cell membrane?\nA) To control which substances enter and leave the cell\nB) To make the cell rigid\nC) To store DNA\nD) To produce energy"
+ },
+ {
+  "id": "T216",
+  "set": "theory-validation-2",
+  "label": "medium",
+  "text": "Which statement best describes the relationship between preload and stroke volume?\nA) Within limits, greater preload stretches the ventricle and increases stroke volume\nB) Preload and stroke volume are unrelated\nC) Greater preload always decreases stroke volume\nD) Preload only affects heart rate"
+ },
+ {
+  "id": "T217",
+  "set": "theory-validation-2",
+  "label": "hard",
+  "text": "Why does an acute rise in arterial pressure not produce a proportional rise in cerebral blood flow in a healthy person, and at what point does this protection fail?\nA) Cerebral autoregulation constricts arterioles to keep flow constant, and it fails when pressure exceeds the upper autoregulatory limit\nB) Cerebral vessels are rigid so flow never changes\nC) The blood-brain barrier limits flow and never fails\nD) Flow is controlled by the kidneys"
+ },
+ {
+  "id": "T218",
+  "set": "theory-validation-2",
+  "label": "hard",
+  "text": "Which explanation accounts for the observation that a lipid-soluble drug has a large volume of distribution yet is eliminated slowly?\nA) Extensive tissue sequestration lowers the plasma fraction available to the liver and kidney, so clearance relative to total body drug is slow\nB) Lipid solubility increases renal excretion\nC) Large volume of distribution speeds hepatic metabolism\nD) The drug is bound only to plasma water"
+ },
+ {
+  "id": "T219",
+  "set": "theory-validation-2",
+  "label": "hard",
+  "text": "Why is intrinsic factor deficiency treated parenterally while a purely dietary vitamin B12 deficiency can be treated orally?\nA) Without intrinsic factor the vitamin cannot be absorbed in the ileum, whereas high oral doses can be absorbed by passive diffusion when intake is the problem\nB) Intrinsic factor is a form of B12\nC) Oral B12 is destroyed in all patients\nD) Parenteral B12 is cheaper"
+ },
+ {
+  "id": "T220",
+  "set": "theory-validation-2",
+  "label": "hard",
+  "text": "Which statement best explains how insulin resistance can coexist with high insulin levels and still produce hyperglycemia?\nA) Target tissues respond poorly, so compensatory hyperinsulinemia is insufficient to restore normal glucose uptake and suppress hepatic glucose output\nB) High insulin always lowers glucose\nC) Insulin resistance reduces glucose production\nD) Hyperglycemia lowers insulin resistance"
+ },
+ {
+  "id": "T221",
+  "set": "theory-validation-2",
+  "label": "hard",
+  "text": "How can a person have a normal arterial oxygen tension yet a severely reduced oxygen content, and what would a pulse oximeter show?\nA) Severe anemia or abnormal hemoglobin lowers the carrying capacity while dissolved oxygen is normal, and the oximeter may read normally\nB) Oxygen tension always determines content\nC) The oximeter would read low\nD) Content depends only on altitude"
+ },
+ {
+  "id": "T222",
+  "set": "theory-validation-2",
+  "label": "hard",
+  "text": "Which mechanism explains why type 1 and type 2 diabetes differ in their tendency to develop ketosis?\nA) Absolute insulin deficiency allows unrestrained lipolysis and ketogenesis, while residual insulin in type 2 usually suppresses it\nB) Type 2 lacks glucagon\nC) Type 1 has high insulin\nD) Ketosis is caused by high fiber intake"
+ },
+ {
+  "id": "T223",
+  "set": "theory-validation-2",
+  "label": "hard",
+  "text": "Why does a competitive inhibitor increase the apparent Km without changing Vmax, whereas a non-competitive inhibitor lowers Vmax?\nA) Competitive inhibition can be overcome by more substrate, while non-competitive inhibition removes active enzyme regardless of substrate\nB) Competitive inhibitors change the enzyme concentration\nC) Non-competitive inhibitors raise Km only\nD) Both lower Vmax"
+ },
+ {
+  "id": "T224",
+  "set": "theory-validation-2",
+  "label": "hard",
+  "text": "What explains why bacterial efflux pumps can make unrelated antibiotic classes ineffective at the same time?\nA) Broad-specificity pumps expel structurally different drugs, producing multidrug resistance from a single mechanism\nB) Each antibiotic needs its own pump\nC) Efflux pumps only affect one class\nD) Resistance arises only by cell wall loss"
+ }
+]

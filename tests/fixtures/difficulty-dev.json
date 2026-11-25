@@ -1,0 +1,362 @@
+[
+ {
+  "id": "D01",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which of the following is the normal adult serum potassium range?\nA) 1.5-2.5 mEq/L\nB) 3.5-5.0 mEq/L\nC) 6.0-7.5 mEq/L\nD) 8.0-9.5 mEq/L"
+ },
+ {
+  "id": "D02",
+  "set": "dev",
+  "label": "easy",
+  "text": "What is the medical term for a low blood sodium level?\nA) Hypernatremia\nB) Hyponatremia\nC) Hypokalemia\nD) Hypercalcemia"
+ },
+ {
+  "id": "D03",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which vitamin deficiency causes scurvy?\nA) Vitamin A\nB) Vitamin B12\nC) Vitamin C\nD) Vitamin D"
+ },
+ {
+  "id": "D04",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which of the following is the normal adult respiratory rate?\nA) 4-8 breaths/min\nB) 12-20 breaths/min\nC) 30-40 breaths/min\nD) 50-60 breaths/min"
+ },
+ {
+  "id": "D05",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which electrolyte is mainly responsible for muscle contraction and clotting?\nA) Sodium\nB) Calcium\nC) Chloride\nD) Phosphate"
+ },
+ {
+  "id": "D06",
+  "set": "dev",
+  "label": "easy",
+  "text": "The nurse knows that the normal adult serum calcium range is:\nA) 4.0-6.0 mg/dL\nB) 8.5-10.5 mg/dL\nC) 12-14 mg/dL\nD) 16-18 mg/dL"
+ },
+ {
+  "id": "D07",
+  "set": "dev",
+  "label": "easy",
+  "text": "What is the term for difficulty swallowing?\nA) Dysphagia\nB) Dysphasia\nC) Dyspepsia\nD) Dysuria"
+ },
+ {
+  "id": "D08",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which of the following is a normal adult blood pressure?\nA) 80/40 mmHg\nB) 118/76 mmHg\nC) 168/104 mmHg\nD) 200/120 mmHg"
+ },
+ {
+  "id": "D09",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which organ is primarily responsible for filtering the blood and producing urine?\nA) Liver\nB) Kidney\nC) Lung\nD) Stomach"
+ },
+ {
+  "id": "D10",
+  "set": "dev",
+  "label": "easy",
+  "text": "The antidote for heparin overdose is:\nA) Vitamin K\nB) Protamine sulfate\nC) Naloxone\nD) Flumazenil"
+ },
+ {
+  "id": "D11",
+  "set": "dev",
+  "label": "easy",
+  "text": "The antidote for warfarin overdose is:\nA) Protamine sulfate\nB) Vitamin K\nC) Atropine\nD) Acetylcysteine"
+ },
+ {
+  "id": "D12",
+  "set": "dev",
+  "label": "easy",
+  "text": "What is the normal range of pH in arterial blood?\nA) 6.80-7.00\nB) 7.35-7.45\nC) 7.60-7.80\nD) 8.00-8.20"
+ },
+ {
+  "id": "D13",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which cranial nerve controls facial movement?\nA) Optic\nB) Facial\nC) Vagus\nD) Trigeminal"
+ },
+ {
+  "id": "D14",
+  "set": "dev",
+  "label": "easy",
+  "text": "What does the abbreviation PRN mean?\nA) Every morning\nB) As needed\nC) Before meals\nD) At bedtime"
+ },
+ {
+  "id": "D15",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which of the following is the normal fasting blood glucose range?\nA) 20-40 mg/dL\nB) 70-99 mg/dL\nC) 150-200 mg/dL\nD) 250-300 mg/dL"
+ },
+ {
+  "id": "D16",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which nutrient provides the most energy per gram?\nA) Carbohydrate\nB) Protein\nC) Fat\nD) Water"
+ },
+ {
+  "id": "D17",
+  "set": "dev",
+  "label": "easy",
+  "text": "The normal serum creatinine in an adult female is approximately:\nA) 0.5-1.1 mg/dL\nB) 3.0-4.0 mg/dL\nC) 6.0-8.0 mg/dL\nD) 10-12 mg/dL"
+ },
+ {
+  "id": "D18",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which term means blood in the urine?\nA) Hematuria\nB) Dysuria\nC) Oliguria\nD) Polyuria"
+ },
+ {
+  "id": "D19",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which of the following is the normal adult hemoglobin range for males?\nA) 4-6 g/dL\nB) 13.5-17.5 g/dL\nC) 20-24 g/dL\nD) 26-30 g/dL"
+ },
+ {
+  "id": "D20",
+  "set": "dev",
+  "label": "easy",
+  "text": "Which of these is a fat-soluble vitamin?\nA) Vitamin C\nB) Vitamin B6\nC) Vitamin E\nD) Folic acid"
+ },
+ {
+  "id": "D21",
+  "set": "dev",
+  "label": "medium",
+  "text": "A nurse is caring for a client with heart failure who reports shortness of breath. Assessment: crackles in both lung bases, 2+ pitting edema of the ankles, SpO2 88% on room air. Which action should the nurse take first?\nA) Place the client in high Fowler position\nB) Encourage oral fluids\nC) Check the diet order\nD) Ambulate the client in the hallway"
+ },
+ {
+  "id": "D22",
+  "set": "dev",
+  "label": "medium",
+  "text": "The nurse is assigned four clients. Which client should the nurse assess first?\nA) A client 2 days post-op with pain 4/10\nB) A client with COPD whose SpO2 dropped from 94% to 88%\nC) A client awaiting discharge teaching\nD) A client with a stable ileostomy"
+ },
+ {
+  "id": "D23",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client newly prescribed warfarin asks about diet. Which statement by the client indicates teaching is needed?\nA) I will eat a consistent amount of green leafy vegetables\nB) I will stop eating all spinach and kale\nC) I will report black stools\nD) I will use a soft toothbrush"
+ },
+ {
+  "id": "D24",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client with pneumonia has a temperature of 38.6 °C, a productive cough and SpO2 93%. Which intervention should the nurse implement first?\nA) Assist with coughing and deep breathing and raise the head of the bed\nB) Obtain a sputum culture after the first antibiotic dose\nC) Restrict fluids\nD) Apply a cooling blanket"
+ },
+ {
+  "id": "D25",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client with a new tracheostomy suddenly becomes dyspneic and the inner cannula is clogged. Which action should the nurse take first?\nA) Remove and clean or replace the inner cannula\nB) Call the provider\nC) Deflate the cuff and leave the room\nD) Apply a nasal cannula"
+ },
+ {
+  "id": "D26",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client is prescribed prednisone for several weeks. Which instruction should the nurse include?\nA) Stop the drug abruptly when feeling better\nB) Do not stop taking the drug suddenly\nC) Take the drug only when symptoms occur\nD) Avoid all fluids"
+ },
+ {
+  "id": "D27",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client with a nasogastric tube for feeding reports nausea and abdominal fullness. Which action should the nurse take first?\nA) Stop the feeding and check tube placement\nB) Increase the rate\nC) Lay the client flat\nD) Flush with 100 mL of juice"
+ },
+ {
+  "id": "D28",
+  "set": "dev",
+  "label": "medium",
+  "text": "A postpartum client has a boggy uterus and heavy vaginal bleeding. Which action should the nurse take first?\nA) Massage the fundus\nB) Obtain a urine sample\nC) Offer a snack\nD) Encourage ambulation"
+ },
+ {
+  "id": "D29",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client is 1 day post-op abdominal surgery and has not voided in 8 hours. Which action should the nurse take first?\nA) Palpate the bladder and bladder scan if available\nB) Give a diuretic\nC) Restrict fluids\nD) Insert an indwelling catheter immediately"
+ },
+ {
+  "id": "D30",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client with Parkinson disease is prescribed carbidopa-levodopa. Which statement by the client shows the need for teaching?\nA) I should take the drug with a high-protein meal\nB) I may feel dizzy when I stand up\nC) My urine may darken\nD) I should rise slowly"
+ },
+ {
+  "id": "D31",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client with a chest tube has continuous bubbling in the water-seal chamber. Which action should the nurse take?\nA) Check the system for an air leak\nB) Clamp the tube\nC) Strip the tubing\nD) Raise the drainage system above the chest"
+ },
+ {
+  "id": "D32",
+  "set": "dev",
+  "label": "medium",
+  "text": "A child with suspected epiglottitis is drooling and sitting in a tripod position. Which action is the priority?\nA) Examine the throat with a tongue blade\nB) Keep the child calm and prepare for emergency airway support\nC) Obtain a throat culture\nD) Place the child supine"
+ },
+ {
+  "id": "D33",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client receiving IV vancomycin develops flushing of the face and neck during the infusion. Which action should the nurse take first?\nA) Slow or stop the infusion and assess the client\nB) Increase the rate\nC) Give diphenhydramine and continue at the same rate\nD) Document only"
+ },
+ {
+  "id": "D34",
+  "set": "dev",
+  "label": "medium",
+  "text": "A nurse is teaching a client with a new diagnosis of gout. Which food should the client limit?\nA) Organ meats\nB) Whole grains\nC) Fresh fruit\nD) Low-fat milk"
+ },
+ {
+  "id": "D35",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client with ulcerative colitis has 10 liquid stools daily. Which assessment finding is of greatest concern?\nA) Hypokalemia\nB) Mild abdominal cramping\nC) Fatigue\nD) Decreased appetite"
+ },
+ {
+  "id": "D36",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client with a spinal cord injury at T4 has a severe headache and a blood pressure of 190/110 mmHg. Which action should the nurse take first?\nA) Sit the client upright and check for a bladder or bowel distension\nB) Lay the client flat\nC) Give an analgesic\nD) Call the family"
+ },
+ {
+  "id": "D37",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client in labor has late decelerations on the fetal monitor. Which action should the nurse take first?\nA) Turn the client to the left side and give oxygen\nB) Increase the oxytocin\nC) Prepare for discharge\nD) Encourage pushing"
+ },
+ {
+  "id": "D38",
+  "set": "dev",
+  "label": "medium",
+  "text": "The nurse is preparing to administer an intramuscular injection to a toddler. Which site is preferred?\nA) Deltoid\nB) Vastus lateralis\nC) Dorsogluteal\nD) Ventrogluteal only"
+ },
+ {
+  "id": "D39",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client with myasthenia gravis reports increased weakness 1 hour after a dose of pyridostigmine. The nurse should suspect:\nA) Cholinergic crisis or myasthenic crisis and assess respiratory status\nB) Normal drug effect\nC) An allergy\nD) A viral infection"
+ },
+ {
+  "id": "D40",
+  "set": "dev",
+  "label": "medium",
+  "text": "A client with a peptic ulcer reports sudden severe abdominal pain, a rigid abdomen and shoulder pain. Which action should the nurse take first?\nA) Notify the provider immediately and keep the client NPO\nB) Give an antacid\nC) Offer a clear liquid\nD) Encourage ambulation"
+ },
+ {
+  "id": "D41",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client with a DVT is prescribed a heparin infusion at 18 units/kg/hr. The client weighs 82 kg. The pharmacy sends a premixed bag of heparin 25,000 units in 500 mL. At how many mL/hr should the nurse set the pump? (Round to the nearest tenth.)"
+ },
+ {
+  "id": "D42",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client has the following results: pH 7.28, PaCO2 30 mmHg, HCO3 14 mEq/L, Na 140, Cl 108. Calculate the anion gap. Which interpretation is best?\nA) Uncompensated metabolic acidosis\nB) High anion gap metabolic acidosis with appropriate respiratory compensation only\nC) Mixed high anion gap and normal anion gap metabolic acidosis with appropriate respiratory compensation\nD) Metabolic acidosis with a concurrent respiratory acidosis"
+ },
+ {
+  "id": "D43",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client on warfarin and amiodarone is admitted with INR 6.2, creatinine 2.4 mg/dL, potassium 5.6 mEq/L, hemoglobin 8.1 g/dL and blood pressure 88/50 mmHg. The client is also receiving digoxin. Which finding requires the nurse to act first? Select all that apply.\nA) INR 6.2\nB) Potassium 5.6\nC) Blood pressure 88/50\nD) Hemoglobin 8.1\nE) Creatinine 2.4"
+ },
+ {
+  "id": "D44",
+  "set": "dev",
+  "label": "hard",
+  "text": "The order is insulin regular 0.1 units/kg/hr by infusion. The client weighs 94 kg. The bag contains 100 units in 100 mL of normal saline. At what rate in mL/hr should the nurse set the pump?"
+ },
+ {
+  "id": "D45",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client has pH 7.50, PaCO2 48 mmHg and HCO3 36 mEq/L after prolonged vomiting. Potassium is 2.9 mEq/L and chloride 84 mEq/L. Which interpretation and priority are correct?\nA) Metabolic alkalosis with partial respiratory compensation; replace potassium and chloride\nB) Respiratory alkalosis; give oxygen\nC) Metabolic acidosis; give bicarbonate\nD) Respiratory acidosis; intubate"
+ },
+ {
+  "id": "D46",
+  "set": "dev",
+  "label": "hard",
+  "text": "A 4-year-old child weighs 16 kg. The prescriber orders acetaminophen 15 mg/kg every 6 hours. The elixir is 160 mg/5 mL. How many mL should the nurse give per dose? (Round to the nearest tenth.)"
+ },
+ {
+  "id": "D47",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client in hyperosmolar hyperglycemic state has glucose 1,050 mg/dL, sodium 128 mEq/L, serum osmolality 340 mOsm/kg and BUN 58 mg/dL. Which findings explain the sodium and which initial fluid strategy should the nurse expect?\nA) Pseudohyponatremia from glucose; isotonic fluids first\nB) True hyponatremia; fluid restriction\nC) Dehydration only; give free water\nD) Normal; no fluids"
+ },
+ {
+  "id": "D48",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client receiving a continuous norepinephrine infusion has MAP 52 mmHg, lactate 5.4 mmol/L, heart rate 128/min, urine output 10 mL in 2 hours and cool mottled extremities despite 30 mL/kg of crystalloid. Which actions are appropriate? Select all that apply.\nA) Notify the provider urgently\nB) Anticipate a second vasopressor\nC) Reduce the norepinephrine\nD) Reassess volume status and cardiac function\nE) Check the infusion site"
+ },
+ {
+  "id": "D49",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client with a serum potassium of 6.8 mEq/L has peaked T waves and a widened QRS. Which sequence of orders should the nurse anticipate?\nA) Calcium gluconate IV, then insulin with dextrose, then potassium-binding therapy\nB) Potassium supplements\nC) Furosemide only\nD) Sodium polystyrene only and recheck in 6 hours"
+ },
+ {
+  "id": "D50",
+  "set": "dev",
+  "label": "hard",
+  "text": "The Parkland formula is used for a 60-kg adult with 50% TBSA burns 3 hours ago. How many mL should be given in the first 8 hours, and what rate per hour is that for the first 8 hours?"
+ },
+ {
+  "id": "D51",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client with suspected thrombotic thrombocytopenic purpura has platelets 18 x10^9/L, hemoglobin 7.2 g/dL, schistocytes, LDH 1,800 U/L and creatinine 2.8 mg/dL. Which treatment must start urgently and which transfusion should be avoided unless life-threatening bleeding occurs?"
+ },
+ {
+  "id": "D52",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client on theophylline is started on ciprofloxacin and develops tachycardia, tremor and nausea. The theophylline level is 28 mcg/mL. Which interpretation and action are best?\nA) Drug interaction causing theophylline toxicity; hold the drug and notify the provider\nB) Allergic reaction to the antibiotic\nC) Expected adverse effect; continue\nD) Anxiety only"
+ },
+ {
+  "id": "D53",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client with cirrhosis has ammonia 160 mcg/dL, confusion, asterixis and a recent GI bleed. Which interventions should the nurse anticipate? Select all that apply.\nA) Lactulose\nB) Rifaximin\nC) Protein-free diet indefinitely\nD) Evaluate and treat the bleeding source\nE) Sedatives for agitation"
+ },
+ {
+  "id": "D54",
+  "set": "dev",
+  "label": "hard",
+  "text": "A neonate weighs 3.2 kg and has a serum bilirubin of 19 mg/dL at 48 hours of age. Phototherapy has been started. Which assessments and calculations are priority? The prescribed fluid is 150 mL/kg/day. How many mL per feeding for 8 feedings a day?"
+ },
+ {
+  "id": "D55",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client with acute myocardial infarction has ST elevation in leads II, III and aVF, blood pressure 82/50 mmHg and clear lungs. Which complication should the nurse suspect and which medication should be avoided?\nA) Right ventricular infarction; avoid nitroglycerin\nB) Left heart failure; give furosemide\nC) Pericarditis; give nitroglycerin\nD) Pulmonary embolism; give morphine"
+ },
+ {
+  "id": "D56",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client with SIADH has sodium 118 mEq/L and seizures. Which treatment order should the nurse expect and what is the correction limit in the first 24 hours?"
+ },
+ {
+  "id": "D57",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client with hypercalcemia of malignancy has a calcium of 14.2 mg/dL, albumin 2.4 g/dL, creatinine 1.9 mg/dL and a QTc of 520 ms. Calculate the corrected calcium. Which treatment priority is correct?"
+ },
+ {
+  "id": "D58",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client on tacrolimus and mycophenolate after a kidney transplant has creatinine rising from 1.1 to 2.4 mg/dL, a tacrolimus trough of 14 ng/mL, new fluconazole therapy and blood pressure 178/104 mmHg. Which interpretation and actions are best?"
+ },
+ {
+  "id": "D59",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client in the ICU has PaO2 52 mmHg on FiO2 0.8 and PEEP 12 with bilateral infiltrates. Calculate the PaO2/FiO2 ratio and classify the severity. Which nursing priorities apply?"
+ },
+ {
+  "id": "D60",
+  "set": "dev",
+  "label": "hard",
+  "text": "A client with diabetes insipidus has urine output 600 mL/hr, specific gravity 1.002 and serum sodium 155 mEq/L. Which treatment should the nurse anticipate and which finding indicates overcorrection risk?"
+ }
+]

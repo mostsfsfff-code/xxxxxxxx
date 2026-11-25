@@ -69,6 +69,7 @@ const isLeakLine = (line, idx) => {
   return hit.filter(Boolean).length / ws.length >= 0.5;
 };
 
+const EMPTY_LABEL = /^\s*(?:[💡🧩📌✨]\s*)?\*{0,2}\s*(?:mnemonic|memory tip|memory aid|tip|حيلة حفظ|حيلة)\s*\*{0,2}\s*[:：]\s*\*{0,2}\s*$/iu;
 export function stripLeaks(text, idx, final = true) {
   if (!text || typeof text !== "string") return { text, leaks: 0 };
   let leaks = 0;
@@ -76,6 +77,8 @@ export function stripLeaks(text, idx, final = true) {
   const out = [];
   lines.forEach((line, i) => {
     if (MARKER.test(line)) { out.push(line); return; }
+    /* v3.71 · a label with nothing after it ("💡 **Mnemonic:**") is dropped silently: it is cosmetic, so it is NOT counted as a leak and never triggers a rewrite request */
+    if (EMPTY_LABEL.test(line)) return;
     const last = i === lines.length - 1;
     if (!final && last && LEAK_START.test(line)) { leaks += 1; return; }          // still being written: do not flash it on the screen
     if (isLeakLine(line, idx)) { leaks += 1; return; }

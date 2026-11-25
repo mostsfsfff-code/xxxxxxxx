@@ -173,12 +173,9 @@ export default function Editor({ initial, history, kind: kindProp, boot, apiKey,
   const [instructions, setInstructions] = useState(initial?.instructions || "");
   const [chips, setChips] = useState(initial?.chips || []);
   const [moreOpen, setMoreOpen] = useState(false);
-  /* v3.70 · "auto" (a small Gemini model rates the question easy / medium / hard and the app picks the preset) is the default for a student who never chose;
-     a saved manual choice is kept. The new-words list is OPTIONAL and OFF until the student turns it on. */
-  const [mode, setMode] = useState(boot.mode === "auto" || (boot.mode && MODES[boot.mode] && !MODES[boot.mode].hidden) ? boot.mode : "auto");
+  /* v3.78 · no automatic mode: "balanced" is the default, "deep" (أقوى تحليل) is chosen by hand. The new-words list is OPTIONAL and OFF until the student turns it on. */
+  const [mode, setMode] = useState(boot.mode && MODES[boot.mode] && !MODES[boot.mode].hidden ? boot.mode : "balanced");
   const [wordsOn, setWordsOn] = useState(boot.wordsOn === true);
-  const [route, setRoute] = useState(null);                       // what the router decided for the current run
-  const routedRef = useRef(null);
   const [result, setResult] = useState(initial ? {
     original_question_text: initial.original_question_text || "",
     new_words: initial.new_words || "",
@@ -408,7 +405,7 @@ export default function Editor({ initial, history, kind: kindProp, boot, apiKey,
     settle(tracker.current, name, "done");
     setStatus((s) => ({ ...s, [name]: "done" }));
     setErrors((e) => { if (!e[name]) return e; const n = { ...e }; delete n[name]; return n; });
-    onLearn(name, (modeRef.current === "auto" && routedRef.current) || modeRef.current, m.ms, m.chars);
+    onLearn(name, modeRef.current, m.ms, m.chars);
   };
 
   const fillMissing = (name, partial) => {
@@ -456,7 +453,6 @@ export default function Editor({ initial, history, kind: kindProp, boot, apiKey,
 
   const makeAnalysis = (hint) => createAnalysis({
     kind, history, dataUrl: imageUrl, doc, extra: hint ? `${hint}` : instructions, chips, apiKey, modeId: mode, withWords: wordsOn,
-    onRoute: (r) => { routedRef.current = r.mode === "contract" ? "balanced" : r.mode; setRoute(r); },
     onUpdate, onDone, onError, onNotice,
     onTrust: (t) => setTrust((o) => (t.phase === "final" || !o ? t : { ...o, ...t })),
   });
@@ -496,7 +492,6 @@ export default function Editor({ initial, history, kind: kindProp, boot, apiKey,
     clearTimeout(saveTimer.current); pendingSave.current = false; autoOK.current = false;
     prev.current = result;
     tracker.current = createTracker(mode, perfRef.current, tasksFor(kind, wordsOn));
-    routedRef.current = null; setRoute(null);
     setSnap(snapshot(tracker.current));
     setError(null); setErrors({}); setNotes({}); setModels({}); setLastRun(null); setTiming({});
     setResult({ ...nullsFor(kind, wordsOn) });
@@ -613,20 +608,14 @@ export default function Editor({ initial, history, kind: kindProp, boot, apiKey,
         <div>
           <span className="label">وضع التحليل</span>
           <div className="modes" role="radiogroup" aria-label="وضع التحليل">
-            {[{ id: "auto", label: "تلقائي", sub: "الذكاء يقيّم السؤال (سهل / متوسط / قوي) ويختار الأنسب" }, ...Object.values(MODES).filter((m) => !m.hidden)].map((m) => (
+            {Object.values(MODES).filter((m) => !m.hidden).map((m) => (
               <button key={m.id} type="button" role="radio" aria-checked={mode === m.id} data-on={mode === m.id}
-                onClick={() => pickMode(m.id)} className="mode" style={m.id === "auto" ? { gridColumn: "1 / -1" } : undefined}>
+                onClick={() => pickMode(m.id)} className="mode">
                 <b>{m.label}</b>
                 {m.sub ? <small>{m.sub}</small> : null}
               </button>
             ))}
           </div>
-          {mode === "auto" && route && (
-            <p className="route-note" role="status">
-              اختار الذكاء: <b>{route.mode === "contract" ? "مسألة متعددة المهام (طلب واحد)" : ({ easy: "سهل", medium: "متوسط", hard: "قوي" })[route.level]}</b>
-              {route.bumped ? " · أعمق لأنك أعدت المحاولة" : ""}{route.floored ? " · رُفع للأمان" : ""}{route.source === "rules" ? " · تقدير محلي (النموذج لم يرد)" : ""}
-            </p>
-          )}
           <label className="switch-row">
             <input type="checkbox" checked={wordsOn} onChange={(e) => pickWords(e.target.checked)} />
             <span><b>الكلمات الجديدة</b> <small>(اختياري) · لو قفلتها مفيش كلمات هتظهر ومفيش طلب إضافي</small></span>

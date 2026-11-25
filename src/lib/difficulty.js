@@ -15,23 +15,37 @@
  *  • The model sees the source (text, image or PDF) exactly like the writers do; it does not answer the question.
  *  • It is a ROUTER: a wrong level costs time or depth, never a wrong clinical statement by itself. The writers and every gate downstream are unchanged.
  */
+import { assessQuestion } from "./director.js";
 export const LEVELS = ["easy", "medium", "hard"];
 const RANK = { easy: 0, medium: 1, hard: 2 };
-export const ROUTE_BOX_MS = 8000;
+export const ROUTE_BOX_MS = 5000;
+/* v3.71 · the classifier request sits on the critical path (the answer cannot start until the level is known) and a loaded Flash-Lite can take many seconds to
+   answer a one-line question. So the rules decide the OBVIOUS cases locally and only the uncertain middle is sent to the model.
+   Set skipModelWhenSure:false to send every question to the model. */
+export const ROUTER_POLICY = {
+  /* "local"  (default, v3.72): every question is rated by the rules below: no request, no wait, works offline of the model quota.
+     "hybrid": the rules decide the obvious cases, a Flash-Lite request decides the uncertain middle.
+     "model" : every text question is sent to the model (rules stay as floor and fallback). */
+  mode: "local",
+  skipModelWhenSure: true,       // used by "hybrid" only
+};
 
 /* ── 1 · free, rule-based estimate (also the floor and the fallback) ── */
-const CALC = /\b(?:mL\/h(?:r|our)?|ml\/hr|gtt|drops?\/min|mg\/kg|mcg\/kg|units?\/kg|mEq|infuse|drip|titrat\w+|calculate|how many (?:mL|tablets|mg)|dose|dosage|rate of)\b|احسب|الجرعة|معدل التسريب/i;
+const CALC = /\b(?:mL\/h(?:r|our)?|ml\/hr|gtt|drops?\/min|mg\/kg|mcg\/kg|units?\/kg|infuse|drip|titrat\w+|calculate|how many (?:mL|tablets|mg)|dose|dosage|rate of)\b|احسب|الجرعة|معدل التسريب/i;
 const NEG = /\b(?:EXCEPT|NOT|LEAST|FIRST|BEST|PRIORITY|MOST (?:likely|appropriate|important)|requires? (?:further|follow)[- ]?(?:up|teaching)|contraindicated)\b/;
 const MULTI = /\b(?:ABG|arterial blood gas|pH|PaCO2|HCO3|troponin|creatinine|eGFR|potassium|sodium|INR|aPTT|lactate|WBC|hemoglobin|platelet\w*|ECG|EKG|GCS|SpO2)\b/gi;
 const DRUGS = /\b(?:warfarin|heparin|digoxin|lithium|insulin|amiodarone|vancomycin|gentamicin|tacrolimus|cyclosporin\w*|phenytoin|theophylline|methotrexate|aminophylline|nitroprusside|dopamine|norepinephrine)\b/gi;
 
-export function heuristicLevel(text, { optionsCount = 0 } = {}) {
+/* v3.72 keyword rater: kept as the reference the Director replaced (and for tests that compare them) */
+export function legacyHeuristicLevel(text, { optionsCount = 0 } = {}) {
   const t = String(text || "");
   const reasons = [];
   let score = 0;
   const words = (t.match(/\S+/g) || []).length;
   if (words > 220) { score += 2; reasons.push("long stem"); } else if (words > 110) { score += 1; reasons.push("medium-long stem"); }
-  const nums = (t.match(/\d+(?:\.\d+)?\s*(?:mg|mcg|mL|mmol|mEq|mmHg|bpm|%|g\/dL|mg\/dL|IU|units?|\/min|°C|°F)/gi) || []).length;
+  /* answer-option lines ("A) 1.5–2.5 mEq/L") are choices, not data the student must combine: they must not inflate the measured-value count */
+  const stem = t.split("\n").filter((ln) => !/^\s*[A-Ha-h][.)]\s/.test(ln)).join("\n");
+  const nums = (stem.match(/\d+(?:\.\d+)?\s*(?:mg|mcg|mL|mmol|mEq|mmHg|bpm|%|g\/dL|mg\/dL|IU|units?|\/min|°C|°F)/gi) || []).length;
   if (nums >= 6) { score += 2; reasons.push("many measured values"); } else if (nums >= 3) { score += 1; reasons.push("several measured values"); }
   const labs = new Set((t.match(MULTI) || []).map((x) => x.toLowerCase())).size;
   if (labs >= 4) { score += 1; reasons.push("multi-system data"); }
@@ -43,7 +57,21 @@ export function heuristicLevel(text, { optionsCount = 0 } = {}) {
   if (optionsCount >= 5 || /\bselect all that apply\b|\bSATA\b/i.test(t)) { score += 1; reasons.push("select-all / many options"); }
   if (words < 25 && !reasons.length) reasons.push("very short, single idea");
   const level = score >= 5 ? "hard" : score >= 2 ? "medium" : "easy";
-  return { level, score, reasons, calc: CALC.test(t) };
+  /* "sure": easy only on POSITIVE evidence of a pure recall item (short, no patient, no calculation, no drug, no exam trap word, at most one measured-value cluster);
+     hard only when several independent signals pile up. Everything in between goes to the model. */
+  const vignette = reasons.some((r) => r.startsWith("clinical vignette"));
+  const sure = score <= 1 && words <= 90 && !vignette && !CALC.test(t) && !NEG.test(t) && dr === 0 && optionsCount < 5 ? "easy" : score >= 7 ? "hard" : null;
+  /* local verdict: EASY needs positive evidence ("sure"); a question the rules cannot place stays MEDIUM, never easy by default */
+  const local = sure === "easy" ? "easy" : level === "easy" ? "medium" : level;
+  return { level, score, reasons, calc: CALC.test(t), sure, local };
+}
+
+/* v3.73 · the local rater is the Director (lib/director.js): reasoning-step estimate from structure, with confidence and the signals behind it.
+   Same return shape as before so every caller keeps working; `director` carries the full analysis (type, steps, confidence, signals, floors, ms). */
+export function heuristicLevel(text, { optionsCount = 0 } = {}) {
+  const d = assessQuestion(text, { optionsCount });
+  const sure = d.confidence === "high" && d.level === "easy" ? "easy" : d.confidence === "high" && d.level === "hard" ? "hard" : null;
+  return { level: d.level, local: d.level, score: d.steps, reasons: d.reasons, calc: d.calc, sure, type: d.type, confidence: d.confidence, director: d };
 }
 
 /* ── 2 · the model's verdict ── */
@@ -51,11 +79,11 @@ export function buildDifficultyPrompt() {
   return {
     system: `You are a router for a nursing/medical exam-study app. Read the attached question (text, image or PDF) and decide how much reasoning it needs. Do NOT answer it, do NOT explain it.
 
-EASY   one fact or definition, a recognition item, one-step selection with clearly different options, no patient-data interplay.
+EASY   pure RECALL: one fact, definition, normal range, classification or recognition item; one step; no patient decision, no calculation, no combining of several data points.
 MEDIUM a typical clinical vignette needing 2–3 steps: prioritisation, interpreting a few findings, a drug with its nursing action, a simple one-formula calculation.
 HARD   multi-step or multi-system reasoning; conflicting or borderline data; a dose/rate calculation with unit conversions; interacting drugs; lab/ABG interpretation that must be combined with the history; EXCEPT/NOT wording with two defensible options; an uncommon condition; or an open case with several parts.
 
-When unsure between two levels choose the HIGHER one: an under-powered answer is worse than a slower one.
+A question that only asks for a normal value, a definition or a name is EASY even when it mentions a lab or a drug. Choose the HIGHER level only when the item contains a patient decision, a calculation, several interacting data points or drug-safety judgement: an under-powered answer to those is worse than a slower one.
 Reply with ONE line of JSON and nothing else: {"level":"easy|medium|hard","reason":"at most 12 words"}`,
     user: "Classify the attached question.",
   };

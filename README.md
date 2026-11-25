@@ -1,3 +1,57 @@
+## v3.79.0 — Arabic / English reading order (display only, zero tokens)
+
+A line holding a whole English sentence and a whole Arabic sentence is now shown as two lines (English together, Arabic together, each in its own direction); short English terms stay inside the Arabic sentence. Arabic phrases are isolated like the English ones, so spaces and punctuation no longer jump sides. Pure local rendering in `emphasis.js` (`splitMixed`) and `rich.jsx`: no request, no tokens, no waiting. 605/605 tests, build OK.
+
+---
+
+## v3.78.0 — No Director, no Auto
+
+The «تلقائي» (Auto) mode and the local Director (question-difficulty rater, its learning, the strictness selector, the self-rating and the automatic escalation) are removed completely. The student now picks one of two modes by hand: **متوازن** (default) and **أقوى تحليل** (deepest thinking, a short note says it takes more tokens and time). An old saved choice of "auto" falls back to متوازن. Removed with it: `director.js`, `director-learn.js`, `difficulty.js`, the two audit scripts and their tests. 601/601 tests, build OK.
+
+---
+
+## v3.77.0 — Audit of ten student questions
+
+One under-rated hard item (Bayes/PPV written as prose) and one false "second ask" found and fixed; 672/672 tests. See [report](docs/USER10_AUDIT_v3.77.0.md).
+
+---
+
+## v3.76.0 — Strictness: "never rated below what it needs"
+
+Label accuracy cannot be 100 % (subjective; BEA 2024). A rule that can be: under `max` only a provable recall item stays below hard, so nothing is under-rated whatever the rater misses (0 of 252 under-rated, also with whole signal families removed; price: every non-recall question uses the careful preset, same requests, longer thinking, unmeasured). Selector next to Auto (default max); `strict` is the middle. 668/668 tests. See [report](docs/STRICTNESS_v3.76.0.md).
+
+---
+
+## v3.75.0 — Auto, safe to be the only button
+
+Safety nets on every preset (light answer self-rating, balanced solve `LEVEL`), local learning from the model's ratings and from Retry, and `scripts/route-audit.mjs` to calibrate the rater against the model on your own questions. 100 % label accuracy is impossible (subjective labels; BEA 2024); the guarantee is "no answer shallower than the model's own judgement", with extra requests only on disagreement. 661/661 tests. See [report](docs/ACCURACY_ARCHITECTURE_v3.75.0.md).
+
+---
+
+## v3.74.0 — Pure-theory difficulty + model self-check + learning from Retry
+
+Concept model for questions with no numbers/drugs/patient (first-run accuracy on four fresh theory sets: 87.5 / 77.8 / 79.2 / 70.8 %, was 45.8 % before; tuned sets now 95–100 % = not estimates), a free self-rating (`@@LEVEL@@`) that escalates a wrongly-light answer once, and per-type learning from Retry. Research basis: BEA 2024 (text-only difficulty prediction barely beats baseline) and Bloom-taxonomy classification. 654/654 tests. See [report](docs/THEORY_AND_SELFCHECK_v3.74.0.md).
+
+---
+
+## v3.73.0 — The Director (local question analyser)
+
+Replaces the keyword rater: estimates reasoning steps from structure (clinical panels with values, calculations, drug interactions, multi-step topics, option patterns), with confidence and visible reasons. Held-out first run 94.4 % vs 75.0 % for the old rater; fresh validation set 96.7 %; ≈ 0.5 ms per question; 644/644 tests incl. accuracy/safety/speed gates. Corpora are self-labelled: add your own and run `node scripts/difficulty-eval.mjs`. See [report](docs/DIRECTOR_v3.73.0.md).
+
+---
+
+## v3.72.0 — Local difficulty rating for every question
+
+All questions are rated by local rules (no router request); easy needs positive evidence, otherwise medium. `ROUTER_POLICY.mode` can switch back to "hybrid" or "model". 631/631 tests. See [report](docs/LOCAL_ROUTING_v3.72.0.md).
+
+---
+
+## v3.71.0 — Fast path for easy questions
+
+A trivial question took 30 s: it was routed "medium" (a rule counted `mEq/L` as dosing), the router waited on the critical path, and easy still cost 3 requests. Now: rules decide obvious cases locally, `light` = one compact request on the lightest lane, the report shows the route, empty `Mnemonic:` labels are dropped. Google's first-byte latency itself is not fixable here. See [report](docs/FAST_PATH_v3.71.0.md).
+
+---
+
 ## v3.70.0 — Adaptive difficulty router + optional words
 
 New first mode **تلقائي**: a small Gemini model rates each question easy / medium / hard and the app picks the preset (easy → no silent solve; hard → deep, or Flash-with-high-thinking on a free key); the free rule-based estimate is the fallback and a safety floor. The new-words list is now an **off-by-default switch** (off = no card, no request). `npm test` **619/619**, build OK; classifier accuracy and the UI in a browser are **not** verified. See [report](docs/ADAPTIVE_ROUTING_AND_OPTIONAL_WORDS_v3.70.0.md).

@@ -1,0 +1,183 @@
+[
+ {
+  "id": "V01",
+  "set": "validation",
+  "label": "easy",
+  "text": "Which gland is known as the master gland?\nA) Thyroid\nB) Pituitary\nC) Adrenal\nD) Pineal"
+ },
+ {
+  "id": "V02",
+  "set": "validation",
+  "label": "easy",
+  "text": "What is the term for absence of menstruation?\nA) Menorrhagia\nB) Amenorrhea\nC) Dysmenorrhea\nD) Metrorrhagia"
+ },
+ {
+  "id": "V03",
+  "set": "validation",
+  "label": "easy",
+  "text": "The normal adult platelet count is:\nA) 15,000-45,000/mm3\nB) 150,000-450,000/mm3\nC) 1,500,000-4,500,000/mm3\nD) 5,000-10,000/mm3"
+ },
+ {
+  "id": "V04",
+  "set": "validation",
+  "label": "easy",
+  "text": "Which mineral is essential for hemoglobin formation?\nA) Iron\nB) Zinc\nC) Iodine\nD) Fluoride"
+ },
+ {
+  "id": "V05",
+  "set": "validation",
+  "label": "easy",
+  "text": "Which chamber of the heart pumps oxygenated blood to the body?\nA) Right atrium\nB) Left atrium\nC) Left ventricle\nD) Right ventricle"
+ },
+ {
+  "id": "V06",
+  "set": "validation",
+  "label": "easy",
+  "text": "What does the abbreviation BID mean?\nA) Once daily\nB) Twice daily\nC) Three times daily\nD) Every other day"
+ },
+ {
+  "id": "V07",
+  "set": "validation",
+  "label": "easy",
+  "text": "Which vitamin deficiency causes night blindness?\nA) Vitamin A\nB) Vitamin B1\nC) Vitamin C\nD) Vitamin K"
+ },
+ {
+  "id": "V08",
+  "set": "validation",
+  "label": "easy",
+  "text": "The medical term for a high blood glucose level is:\nA) Hypoglycemia\nB) Hyperglycemia\nC) Hypocalcemia\nD) Hypoxemia"
+ },
+ {
+  "id": "V09",
+  "set": "validation",
+  "label": "easy",
+  "text": "Which lab value is the best indicator of long-term glucose control?\nA) Fasting glucose\nB) Hemoglobin A1c\nC) Random glucose\nD) Urine ketones"
+ },
+ {
+  "id": "V10",
+  "set": "validation",
+  "label": "easy",
+  "text": "What is the normal range of adult urine output per hour?\nA) 5 mL/hr\nB) 30-50 mL/hr or more\nC) 200 mL/hr\nD) 500 mL/hr"
+ },
+ {
+  "id": "V11",
+  "set": "validation",
+  "label": "medium",
+  "text": "A client with a new diagnosis of type 2 diabetes is learning to use a glucometer. Which statement shows correct understanding?\nA) I will check my sugar before meals and at bedtime\nB) I will use the same fingerstick spot every time\nC) I will stop testing when I feel well\nD) I will reuse the lancet for a week"
+ },
+ {
+  "id": "V12",
+  "set": "validation",
+  "label": "medium",
+  "text": "A client is receiving IV potassium chloride through a peripheral line. The client reports burning at the site. Which action should the nurse take first?\nA) Stop the infusion and assess the site\nB) Increase the rate\nC) Apply a warm compress and continue\nD) Flush with sterile water"
+ },
+ {
+  "id": "V13",
+  "set": "validation",
+  "label": "medium",
+  "text": "A client with a hip fracture is scheduled for surgery. Which position should the nurse maintain after total hip replacement?\nA) Keep the legs abducted with a pillow between them\nB) Flex the hip more than 90 degrees\nC) Cross the legs\nD) Lie on the operative side only"
+ },
+ {
+  "id": "V14",
+  "set": "validation",
+  "label": "medium",
+  "text": "A nurse is caring for a client who just had a lumbar puncture. Which instruction should the nurse give?\nA) Lie flat for the prescribed time and increase fluids\nB) Sit upright immediately\nC) Walk in the hallway\nD) Avoid all fluids for 8 hours"
+ },
+ {
+  "id": "V15",
+  "set": "validation",
+  "label": "medium",
+  "text": "A client with asthma uses a corticosteroid inhaler and a short-acting beta agonist. Which should the client use first during an attack?\nA) The short-acting beta agonist\nB) The corticosteroid inhaler\nC) Neither; call a friend\nD) Both together"
+ },
+ {
+  "id": "V16",
+  "set": "validation",
+  "label": "medium",
+  "text": "The nurse is teaching a pregnant client about warning signs. Which finding should the client report immediately?\nA) Severe headache with visual changes\nB) Mild backache\nC) Occasional leg cramps\nD) Mild nausea in the morning"
+ },
+ {
+  "id": "V17",
+  "set": "validation",
+  "label": "medium",
+  "text": "A client with a urinary catheter develops cloudy urine and a temperature of 38.4 °C. Which action should the nurse take first?\nA) Assess for other signs of infection and notify the provider\nB) Clamp the catheter\nC) Irrigate the bladder\nD) Remove the catheter without an order"
+ },
+ {
+  "id": "V18",
+  "set": "validation",
+  "label": "medium",
+  "text": "A nurse is administering digoxin to a client. The apical pulse is 54/min. Which action should the nurse take?\nA) Hold the dose and notify the provider\nB) Give the dose\nC) Give half the dose\nD) Recheck in 2 hours and give"
+ },
+ {
+  "id": "V19",
+  "set": "validation",
+  "label": "medium",
+  "text": "Which statement by a client with a new ostomy indicates the need for further teaching?\nA) I should empty the pouch when it is one-third full\nB) I will cut the skin barrier larger than the stoma\nC) I will change the pouch if it leaks\nD) I will watch the stoma color"
+ },
+ {
+  "id": "V20",
+  "set": "validation",
+  "label": "medium",
+  "text": "A nurse is assessing a client with a fractured femur. Which finding is most concerning for fat embolism?\nA) Sudden dyspnea and petechiae\nB) Mild pain\nC) Swelling at the site\nD) Bruising of the thigh"
+ },
+ {
+  "id": "V21",
+  "set": "validation",
+  "label": "hard",
+  "text": "A client is prescribed dobutamine 7 mcg/kg/min. The client weighs 84 kg. The bag contains dobutamine 500 mg in 250 mL. At what rate in mL/hr should the nurse set the pump? (Round to the nearest tenth.)"
+ },
+ {
+  "id": "V22",
+  "set": "validation",
+  "label": "hard",
+  "text": "A client has pH 7.31, PaCO2 62 mmHg and HCO3 31 mEq/L with chronic lung disease. Which interpretation is best?\nA) Acute respiratory acidosis uncompensated\nB) Chronic respiratory acidosis with partial metabolic compensation and a superimposed acute component\nC) Metabolic alkalosis with respiratory compensation\nD) Normal acid-base balance"
+ },
+ {
+  "id": "V23",
+  "set": "validation",
+  "label": "hard",
+  "text": "A client with septic shock has MAP 55 mmHg, lactate 6.0 mmol/L, heart rate 135/min, temperature 39.4 °C and received 30 mL/kg crystalloid. Vasopressin is added to norepinephrine. Which actions should the nurse anticipate? Select all that apply.\nA) Repeat lactate\nB) Titrate to a MAP of 65 mmHg\nC) Stop norepinephrine\nD) Obtain blood cultures if not already drawn\nE) Reassess perfusion and urine output"
+ },
+ {
+  "id": "V24",
+  "set": "validation",
+  "label": "hard",
+  "text": "A 12-kg child needs ceftriaxone 50 mg/kg/day divided every 12 hours. The vial is reconstituted to 100 mg/mL. How many mL per dose should the nurse draw up?"
+ },
+ {
+  "id": "V25",
+  "set": "validation",
+  "label": "hard",
+  "text": "A client with end-stage liver disease has INR 2.8, platelets 48 x10^9/L, sodium 126 mEq/L, creatinine 2.6 mg/dL and new confusion after a large-volume paracentesis. Which interpretation and priority are correct?\nA) Hepatorenal syndrome and hepatic encephalopathy; notify the provider and hold diuretics\nB) Simple dehydration; give free water\nC) Normal for cirrhosis; routine care\nD) Alcohol withdrawal only"
+ },
+ {
+  "id": "V26",
+  "set": "validation",
+  "label": "hard",
+  "text": "A client on phenytoin is started on fluconazole and develops nystagmus, ataxia and slurred speech. The phenytoin level is 32 mcg/mL. Which explanation and action are best?\nA) Interaction raising phenytoin levels; hold the next dose and notify the provider\nB) Stroke; give alteplase\nC) Expected effect; continue\nD) Hypoglycemia; give dextrose"
+ },
+ {
+  "id": "V27",
+  "set": "validation",
+  "label": "hard",
+  "text": "A client with DKA has glucose 520 mg/dL, pH 7.05, potassium 2.9 mEq/L and bicarbonate 6 mEq/L. Which order sequence is correct?\nA) Replace potassium and give fluids first, then start insulin when potassium is at least 3.3\nB) Insulin first, then potassium\nC) Bicarbonate first, then insulin\nD) Fluids only"
+ },
+ {
+  "id": "V28",
+  "set": "validation",
+  "label": "hard",
+  "text": "A 50-kg client has 30% total body surface area burns. Using the Parkland formula at 4 mL/kg per % TBSA, what is the total fluid for 24 hours, and what is the hourly rate for the first 8 hours?"
+ },
+ {
+  "id": "V29",
+  "set": "validation",
+  "label": "hard",
+  "text": "A client with a serum sodium of 112 mEq/L and seizures is receiving 3% sodium chloride. Sodium rises to 126 mEq/L in 10 hours. Which action should the nurse take and why?",
+  "note": "the ONE miss of the first honest run (hard→medium, 29/30 = 96.7 %); the hypertonic-saline topic was added afterwards, so this item no longer measures generalisation"
+ },
+ {
+  "id": "V30",
+  "set": "validation",
+  "label": "hard",
+  "text": "A client with tumor lysis syndrome after chemotherapy has potassium 6.3 mEq/L, phosphate 7.8 mg/dL, calcium 6.9 mg/dL, uric acid 14 mg/dL and creatinine 2.9 mg/dL. Which findings are priorities and which treatments should be anticipated?"
+ }
+]

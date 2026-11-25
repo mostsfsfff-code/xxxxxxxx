@@ -30,7 +30,6 @@ import { selectClaims, applyCached, applyVerdicts } from "./claims.js";
 import { addGaps } from "./reports.js";
 import { getModelLists, runTask } from "./gemini.js";
 import { weakFirst, tierOf } from "./router.js";
-import { buildDifficultyPrompt, parseDifficulty, heuristicLevel, combineLevels, modeForLevel, routeKey, getRoute, putRoute, ROUTE_BOX_MS, LEVELS } from "./difficulty.js";
 import { parseTaskContract, parseItemOutput, auditItems, defects, assembleAnswer, targetWords } from "./taskcontract.js";
 import { auditCitations, annotateCitations } from "./citation-audit.js";
 import { getContractResult, putContractResult, contractKey } from "./contract-cache.js";
@@ -57,9 +56,24 @@ const has = (ids, id) => Array.isArray(ids) && ids.includes(id);
 const isAbort = (err) => !err || err.name === "AbortError";
 const secs = (ms) => Math.round(ms / 100) / 10;
 
-export function createAnalysis({ kind = "question", history, dataUrl, doc, extra, chips, apiKey, modeId, withWords = true, onRoute = () => {}, profile: profileArg, onUpdate, onDone, onError, onNotice, onTrust }) {
+/* v3.78 · safety net only: removes a stray "@@LEVEL: …@@" marker (and a half-streamed "@@LEV…") if a model still writes one. Nothing is routed from it any more. */
+export function takeSelfLevel(text, final = true) {
+  const raw = String(text || "");
+  const m = /@@\s*LEVEL\s*[:=]\s*(easy|medium|hard)\s*@@/i.exec(raw);
+  let clean = raw.replace(/\n?[ \t]*@@\s*LEVEL\s*[:=][^\n]*$/gim, "").replace(/\n?[ \t]*@@\s*LEVEL[^\n]*@@[ \t]*/gi, "");
+  if (!final) clean = clean.replace(/\n?[ \t]*@@[^@\n]{0,12}$/, "");
+  return { text: clean.trimEnd(), level: m ? m[1].toLowerCase() : null };
+}
+
+/* v3.78 · safety net only: drops a stray "LEVEL: …" line from the silent solve brief so it never reaches the writer. */
+export function takeBriefLevel(raw) {
+  const m = /^[ \t]*LEVEL[ \t]*:[ \t]*(easy|medium|hard)\b/im.exec(String(raw || ""));
+  return { level: m ? m[1].toLowerCase() : null, text: String(raw || "").replace(/^[ \t]*LEVEL[ \t]*:.*$/gim, "").replace(/\n{3,}/g, "\n\n").trim() };
+}
+
+export function createAnalysis({ kind = "question", history, dataUrl, doc, extra, chips, apiKey, modeId, withWords = true, profile: profileArg, onUpdate, onDone, onError, onNotice, onTrust }) {
   const L = kind === "lesson";                 // study material (books, notes, slides, pasted text) instead of one exam question
-  let mode = MODES[modeId] || MODES.balanced;                 // v3.70: "auto" starts as balanced and is replaced by the router's choice before the answer is written
+  let mode = MODES[modeId] || MODES.balanced;                 // the mode the student picked (balanced / deep)
   let wordsCap = L ? { a: Math.round(mode.write.words.a * 1.7), b: Math.round(mode.write.words.b * 1.4) } : mode.write.words;
   const lists = getModelLists(apiKey);
   const src = sourceParts(doc, dataUrl);       // the screenshot, the PDF or the text document
@@ -103,7 +117,7 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
 
   /* the solve stage's result → the brief for the lesson parts (+ its TIER) and the first assessment (banner appears as soon as the solve ends) */
   const takeBrief = (res) => {
-    const brief = cleanBrief(res && res.text) || null;
+    const brief = cleanBrief(takeBriefLevel(res && res.text).text) || null;
     if (!brief) return null;
     briefRaw = brief;
     try {
@@ -367,8 +381,8 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
         apiKey, task, proof: !/^lessonC/.test(task),
         /* v3.35: reading the question text off the screenshot and listing its words are easy jobs: the WEAKEST model first (Flash-Lite), the middle one next and the
            strong one only if nothing else can answer. (A lesson's "ocr" stage is a study summary, not a transcript: it keeps the old order.) */
-        models: (() => { const base = orderForTask(apiKey, task, (cfg.tier === "auto" ? !isSmallKey(apiKey) : cfg.tier === "pro") || (task === "ocr" && !L) ? proFirst : (task === "words" || task === "route") ? weakFirst(fastFirst) : fastFirst); return cfg.avoidWeak ? [...base.filter((m) => tierOf(m) !== "weak"), ...base.filter((m) => tierOf(m) === "weak")] : base; })(),      // v3.33: when the strong models are nearly spent today, the word list goes to Flash-Lite (quota.js)
-        system: system + ((L || task !== "ocr") && task !== "route" ? ARABIC_RULE : ""),   // the OCR transcript must stay exactly as written
+        models: (() => { const base = orderForTask(apiKey, task, (cfg.tier === "auto" ? !isSmallKey(apiKey) : cfg.tier === "pro") || (task === "ocr" && !L) ? proFirst : (task === "words") ? weakFirst(fastFirst) : fastFirst); return cfg.lane === "lite" ? weakFirst(base) : cfg.avoidWeak ? [...base.filter((m) => tierOf(m) !== "weak"), ...base.filter((m) => tierOf(m) === "weak")] : base; })(),      // v3.33: when the strong models are nearly spent today, the word list goes to Flash-Lite (quota.js)
+        system: system + ((L || task !== "ocr") ? ARABIC_RULE : ""),   // the OCR transcript must stay exactly as written
         noSearchSystem,
         search: useMedicalSearch,
         parts: useFiles ? await files.swap(all, signal) : all,
@@ -459,7 +473,7 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
     const preflightCalculationHandoff = !L ? sourceCalculationHandoff() : "";
 
     const compose = (final) => {
-      const r = splitReason(text, final);
+      const r = splitReason(takeSelfLevel(text, final).text, final);
       const partialWarning = final && failure
         ? "\n\n## ⚠️ الإجابة غير مكتملة\nتعذر إكمال جزء من التحليل بسبب خطأ أثناء التوليد. لا تعتمد هذا النص كإجابة نهائية؛ أعد المحاولة أو استخدم مصدرًا موثوقًا/مراجعًا مختصًا."
         : "";
@@ -488,7 +502,7 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
             maxOut: mode.write.maxOut + mode.solve.maxOut, idleMs: mode.solve.idleMs, firstMs: mode.solve.firstMs }
         : L ? (mode.writeA || mode.write) : mode.write;
       const handoff = /APPLICATION CALCULATION AUDIT/.test(String(brief || "")) ? "" : preflightCalculationHandoff;
-      const prompt = L ? buildStudyLessonPrompt({ profile: prof(), history, extra, chips, words }) : buildLessonPrompt({ history, brief, extra, chips, words, calculationHandoff: handoff });
+      const prompt = L ? buildStudyLessonPrompt({ profile: prof(), history, extra, chips, words }) : buildLessonPrompt({ history, brief, extra, chips, words, calculationHandoff: handoff, compact: !!mode.compact });
       stageWithSpecialized(`lesson${brief ? "B" : "X"}:${mode.id}`, cfg, prompt, sig, (full, m) => {
         text = full; model = m; emit(false);
       }).then((res) => {
@@ -630,7 +644,10 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
       };
       timer = setTimeout(() => { if (moved || sig.aborted) return; boxed = true; solveCtrl.abort(); go(null); }, SOLVE_BOX[mode.id] || 30000);
       stageWithSpecialized(`solve:${mode.id}`, mode.solve, buildSolvePrompt(prof()), solveCtrl.signal, () => {}, briefRaw)
-        .then((r0) => { if (boxed || sig.aborted) return; go(takeBrief(r0)); })
+        .then((r0) => {
+          if (boxed || sig.aborted) return;
+          go(takeBrief(r0));
+        })
         .catch((err) => {
           if (boxed || sig.aborted || isAbort(err)) return;
           if (err.fatal || err.busy) { moved = true; clearTimeout(timer); return fail(err); }
@@ -882,59 +899,18 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
       });
   }
 
-  /* ── adaptive routing (v3.70) ── */
-  let bump = 0;                                       // "Retry" on an auto-routed answer goes ONE level deeper (the student is saying: not good enough)
+  /* one path per question: the mode the student picked decides everything (no automatic rating, no rerouting) */
   const dispatchReason = () => {
     if (sliced) runReasonSliced();
-    else if (LESSON_MODE === "single") runReasonSingle();
+    else if (LESSON_MODE === "single" || mode.single) runReasonSingle();
     else if (LESSON_MODE === "split") runReasonSplit();
     else runReasonFast();
   };
-  const applyMode = (id) => { mode = MODES[id] || MODES.balanced; wordsCap = L ? { a: Math.round(mode.write.words.a * 1.7), b: Math.round(mode.write.words.b * 1.4) } : mode.write.words; };
-
-  async function decideRoute(sig) {
-    const small = isSmallKey(apiKey);
-    const text = fullSourceText();
-    const rules = heuristicLevel(text);
-    const noText = !text.trim();                       // an image / scanned PDF: the rules see nothing, so a failed model call must not read as "easy"
-    const src0 = text || `${(dataUrl || "").length}:${(dataUrl || "").slice(0, 300)}`;
-    const key = routeKey(src0, extra || "");
-    const hit = getRoute(key);
-    let verdict = hit ? { level: hit.level, reason: hit.reason || "" } : null, from = hit ? "cache" : "";
-    if (!verdict) {
-      const ctl = new AbortController();
-      const link = () => ctl.abort();
-      sig.addEventListener("abort", link, { once: true });
-      const timer = setTimeout(() => ctl.abort(), ROUTE_BOX_MS);
-      try {
-        const r = await stage("route", { tier: "fast", levels: ["minimal", "low"], budget: 0, maxOut: 400, idleMs: 8000, firstMs: ROUTE_BOX_MS }, buildDifficultyPrompt(), ctl.signal, () => {});
-        verdict = parseDifficulty(r && r.text);
-        if (verdict) from = "model";
-      } catch (e) { /* fail open to the rules: the router is never a reason for the answer not to start */ }
-      finally { clearTimeout(timer); sig.removeEventListener("abort", link); }
-    }
-    let level, source, floored = false;
-    if (verdict) { const c = combineLevels(verdict, rules); level = c.level; floored = c.floored; source = from === "cache" ? "cache" : "model"; }
-    else { level = noText ? "medium" : rules.level; source = "rules"; }
-    if (verdict && from === "model") putRoute(key, { level: verdict.level, reason: verdict.reason });
-    const base = LEVELS.indexOf(level);
-    const finalLevel = LEVELS[Math.min(LEVELS.length - 1, base + bump)];
-    return { level: finalLevel, mode: modeForLevel(finalLevel, { small }), source, floored, bumped: bump > 0 && finalLevel !== level, reason: (verdict && verdict.reason) || rules.reasons.join("; "), rules: rules.level };
-  }
 
   function runReason() {
     const contract = contractNow();
-    if (contract) { if (modeId === "auto") onRoute({ level: "hard", mode: "contract", source: "contract", reason: `${contract.tasks.length} prescribed tasks` }); return runReasonContract(contract); }
-    if (modeId !== "auto" || L) { if (modeId === "auto") applyMode("balanced"); return dispatchReason(); }
-    live.reason?.abort();
-    const ctrl = new AbortController();
-    live.reason = ctrl;
-    decideRoute(ctrl.signal).then((r) => {
-      if (ctrl.signal.aborted) return;
-      applyMode(r.mode);
-      onRoute(r);
-      dispatchReason();
-    }).catch((err) => { if (ctrl.signal.aborted || isAbort(err)) return; applyMode("balanced"); dispatchReason(); });
+    if (contract) return runReasonContract(contract);
+    dispatchReason();
   }
 
   function run(name) {
@@ -961,7 +937,7 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
       onError = (name, e, last) => { previousError(name, e, last); if (name === "ocr") launchRemaining(); };
       run("ocr");
     },
-    retry(name) { if (name === "reason") { bypassContractCache = true; bump = Math.min(2, bump + 1); } if (TASK_KEYS[name]) run(name); },
+    retry(name) { if (name === "reason") bypassContractCache = true; if (TASK_KEYS[name]) run(name); },
     stop(name) { live[name]?.abort(); },
     cancel() { Object.values(live).forEach((c) => c.abort()); files.cancel(); },
   };

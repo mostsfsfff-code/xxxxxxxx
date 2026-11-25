@@ -1,0 +1,254 @@
+[
+ {
+  "id": "H01",
+  "set": "heldout",
+  "label": "easy",
+  "text": "Which organ produces insulin?\nA) Liver\nB) Pancreas\nC) Kidney\nD) Spleen",
+  "note": ""
+ },
+ {
+  "id": "H02",
+  "set": "heldout",
+  "label": "easy",
+  "text": "The nurse knows that the normal adult resting heart rate is:\nA) 40-60 beats/min\nB) 60-100 beats/min\nC) 100-140 beats/min\nD) 140-180 beats/min",
+  "note": ""
+ },
+ {
+  "id": "H03",
+  "set": "heldout",
+  "label": "easy",
+  "text": "Which blood type is the universal donor for red blood cells?\nA) A positive\nB) B positive\nC) AB positive\nD) O negative",
+  "note": ""
+ },
+ {
+  "id": "H04",
+  "set": "heldout",
+  "label": "easy",
+  "text": "What does the abbreviation NPO mean?\nA) Nothing by mouth\nB) Needs pain observation\nC) Normal pulse output\nD) Nurse patient order",
+  "note": ""
+ },
+ {
+  "id": "H05",
+  "set": "heldout",
+  "label": "easy",
+  "text": "Normal adult oral body temperature is closest to:\nA) 33 °C\nB) 37 °C\nC) 40 °C\nD) 42 °C",
+  "note": ""
+ },
+ {
+  "id": "H06",
+  "set": "heldout",
+  "label": "easy",
+  "text": "Which vitamin is needed for blood clotting?\nA) Vitamin A\nB) Vitamin C\nC) Vitamin D\nD) Vitamin K",
+  "note": ""
+ },
+ {
+  "id": "H07",
+  "set": "heldout",
+  "label": "easy",
+  "text": "Which term describes a heart rate over 100 beats/min?\nA) Bradycardia\nB) Tachycardia\nC) Dyspnea\nD) Apnea",
+  "note": ""
+ },
+ {
+  "id": "H08",
+  "set": "heldout",
+  "label": "easy",
+  "text": "How many cranial nerves are there?\nA) 8\nB) 10\nC) 12\nD) 14",
+  "note": ""
+ },
+ {
+  "id": "H09",
+  "set": "heldout",
+  "label": "easy",
+  "text": "Which is the largest artery in the body?\nA) Carotid\nB) Femoral\nC) Aorta\nD) Radial",
+  "note": ""
+ },
+ {
+  "id": "H10",
+  "set": "heldout",
+  "label": "easy",
+  "text": "The normal serum sodium range in adults is:\nA) 115-125 mEq/L\nB) 135-145 mEq/L\nC) 155-165 mEq/L\nD) 175-185 mEq/L",
+  "note": ""
+ },
+ {
+  "id": "H11",
+  "set": "heldout",
+  "label": "easy",
+  "text": "What is the antidote for acetaminophen overdose?\nA) Naloxone\nB) Acetylcysteine\nC) Flumazenil\nD) Protamine",
+  "note": ""
+ },
+ {
+  "id": "H12",
+  "set": "heldout",
+  "label": "easy",
+  "text": "Which hormone released by the posterior pituitary increases water reabsorption in the kidney?\nA) Insulin\nB) Antidiuretic hormone\nC) Cortisol\nD) Oxytocin",
+  "note": ""
+ },
+ {
+  "id": "H13",
+  "set": "heldout",
+  "label": "medium",
+  "text": "A client with COPD is receiving oxygen at 6 L/min by nasal cannula and becomes drowsy with a respiratory rate of 8/min. Which action should the nurse take first?\nA) Increase the oxygen flow\nB) Lower the oxygen to the level that keeps SpO2 88-92% and reassess\nC) Encourage deep breathing\nD) Document the finding",
+  "note": ""
+ },
+ {
+  "id": "H14",
+  "set": "heldout",
+  "label": "medium",
+  "text": "A nurse is teaching a client who is starting furosemide. Which statement shows the client understood?\nA) I should take it at bedtime\nB) I should eat foods such as bananas and oranges\nC) I should limit fluids to 500 mL a day\nD) I will stop it when I feel better",
+  "note": ""
+ },
+ {
+  "id": "H15",
+  "set": "heldout",
+  "label": "medium",
+  "text": "Which client should the nurse see first after report?\nA) A client with chest pain and diaphoresis\nB) A client on post-op day 1 with a temperature of 37.8 °C\nC) A client waiting for discharge teaching\nD) A client with a gastrostomy tube feeding due",
+  "note": ""
+ },
+ {
+  "id": "H16",
+  "set": "heldout",
+  "label": "medium",
+  "text": "A client 2 hours after cardiac catheterization through the femoral artery reports that the leg is numb and cool. Which action should the nurse take first?\nA) Check the pedal pulses and the groin site\nB) Elevate the leg\nC) Give pain medication\nD) Ask the client to walk",
+  "note": ""
+ },
+ {
+  "id": "H17",
+  "set": "heldout",
+  "label": "medium",
+  "text": "The nurse is caring for a client with a new colostomy. Which finding requires notifying the provider?\nA) The stoma is dark purple\nB) The stoma is pink and moist\nC) Liquid stool in the pouch\nD) Mild redness around the stoma",
+  "note": ""
+ },
+ {
+  "id": "H18",
+  "set": "heldout",
+  "label": "medium",
+  "text": "Which task may the registered nurse delegate to the unlicensed assistive personnel?\nA) Reinforce teaching about a new insulin regimen\nB) Take vital signs for a stable client\nC) Assess pain after surgery\nD) Give an IV push medication",
+  "note": ""
+ },
+ {
+  "id": "H19",
+  "set": "heldout",
+  "label": "medium",
+  "text": "A client with type 1 diabetes is sweating, tremulous and confused. The blood glucose is 52 mg/dL and the client is alert and able to swallow. What should the nurse do first?\nA) Give 15 g of fast-acting carbohydrate\nB) Give glucagon intramuscularly\nC) Give the scheduled insulin\nD) Call the provider",
+  "note": ""
+ },
+ {
+  "id": "H20",
+  "set": "heldout",
+  "label": "medium",
+  "text": "A client taking lithium has a serum lithium level of 1.8 mEq/L. Which finding should the nurse expect?\nA) Coarse tremor and vomiting\nB) Dry cough\nC) Constipation only\nD) Bradypnea only",
+  "note": ""
+ },
+ {
+  "id": "H21",
+  "set": "heldout",
+  "label": "medium",
+  "text": "A client is placed on airborne precautions for suspected tuberculosis. Which personal protective equipment must the nurse wear when entering the room?\nA) A surgical mask\nB) An N95 respirator\nC) A gown only\nD) Shoe covers",
+  "note": ""
+ },
+ {
+  "id": "H22",
+  "set": "heldout",
+  "label": "medium",
+  "text": "A nurse assesses a client 1 day after total thyroidectomy. Which finding indicates hypocalcemia?\nA) Tingling around the mouth and a positive Chvostek sign\nB) Bradycardia\nC) Constipation\nD) Hyperactive bowel sounds",
+  "note": ""
+ },
+ {
+  "id": "H23",
+  "set": "heldout",
+  "label": "medium",
+  "text": "A 6-month-old with bronchiolitis has a respiratory rate of 68/min, nasal flaring and retractions. Which action should the nurse take first?\nA) Position the infant upright and suction the nares\nB) Offer a bottle\nC) Give an antipyretic\nD) Place the infant prone",
+  "note": ""
+ },
+ {
+  "id": "H24",
+  "set": "heldout",
+  "label": "medium",
+  "text": "A client receiving a blood transfusion develops chills, back pain and a temperature of 38.9 °C ten minutes after the transfusion starts. Which action should the nurse take first?\nA) Stop the transfusion and keep the line open with normal saline\nB) Slow the rate\nC) Give acetaminophen and continue\nD) Obtain a urine sample",
+  "note": ""
+ },
+ {
+  "id": "H25",
+  "set": "heldout",
+  "label": "hard",
+  "text": "The order is dopamine 5 mcg/kg/min. The client weighs 70 kg. The pharmacy sends dopamine 400 mg in 250 mL of D5W. At how many mL/hr should the nurse set the pump? (Round to the nearest tenth.)",
+  "note": ""
+ },
+ {
+  "id": "H26",
+  "set": "heldout",
+  "label": "hard",
+  "text": "A child who weighs 18 kg is prescribed amoxicillin 40 mg/kg/day divided every 8 hours. The suspension is 250 mg/5 mL. How many mL should the nurse give per dose?",
+  "note": ""
+ },
+ {
+  "id": "H27",
+  "set": "heldout",
+  "label": "hard",
+  "text": "A client has pH 7.40, PaCO2 24 mmHg, HCO3 15 mEq/L, Na 138, Cl 100, lactate 6.1 mmol/L and an elevated salicylate level. Which interpretation best explains these results?\nA) Compensated respiratory alkalosis only\nB) Mixed respiratory alkalosis and high anion gap metabolic acidosis\nC) Metabolic acidosis with appropriate compensation only\nD) Normal acid-base balance",
+  "note": ""
+ },
+ {
+  "id": "H28",
+  "set": "heldout",
+  "label": "hard",
+  "text": "A client with cirrhosis presents with confusion, ascites, INR 2.4, sodium 124 mEq/L, creatinine 2.1 mg/dL, potassium 5.4 mEq/L, temperature 38.2 °C and abdominal tenderness. Which findings require immediate action? Select all that apply.\nA) Temperature with abdominal tenderness\nB) Sodium 124\nC) Potassium 5.4\nD) Confusion\nE) INR 2.4",
+  "note": ""
+ },
+ {
+  "id": "H29",
+  "set": "heldout",
+  "label": "hard",
+  "text": "A client in diabetic ketoacidosis has glucose 640 mg/dL, pH 7.12, HCO3 8 mEq/L and potassium 3.1 mEq/L. Which action should the nurse anticipate first?\nA) Start the insulin infusion\nB) Replace potassium before starting insulin\nC) Give sodium bicarbonate\nD) Restrict fluids",
+  "note": ""
+ },
+ {
+  "id": "H30",
+  "set": "heldout",
+  "label": "hard",
+  "text": "A 70-kg adult has 40% total body surface area burns that occurred 2 hours ago. Using the Parkland formula (4 mL/kg per % TBSA), how many mL of fluid should be infused in the first 8 hours?",
+  "note": ""
+ },
+ {
+  "id": "H31",
+  "set": "heldout",
+  "label": "hard",
+  "text": "A kidney transplant recipient taking tacrolimus and fluconazole presents with platelets 42 x10^9/L, hemoglobin 7.4 g/dL, schistocytes on the smear, creatinine 3.9 mg/dL and a tacrolimus trough of 16 ng/mL. Which process most likely explains the picture, and which two actions are most urgent?",
+  "note": ""
+ },
+ {
+  "id": "H32",
+  "set": "heldout",
+  "label": "hard",
+  "text": "A client with heart failure taking digoxin has a heart rate of 48/min, potassium 3.1 mEq/L, nausea and visual halos. The digoxin level is 2.6 ng/mL. Which nursing priorities apply? Select all that apply.\nA) Hold the digoxin\nB) Obtain a 12-lead ECG\nC) Replace potassium as ordered\nD) Give the next dose with food\nE) Monitor for ventricular arrhythmias",
+  "note": ""
+ },
+ {
+  "id": "H33",
+  "set": "heldout",
+  "label": "hard",
+  "text": "A client with sepsis has a MAP of 58 mmHg after 30 mL/kg of fluid, lactate 4.8 mmol/L and urine output 0.3 mL/kg/hr. Norepinephrine has been started. What MAP goal and next priority should the nurse expect?",
+  "note": ""
+ },
+ {
+  "id": "H34",
+  "set": "heldout",
+  "label": "hard",
+  "text": "Heparin protocol: aPTT 98 seconds (goal 60-80). If aPTT is above 90, hold for 1 hour and decrease the rate by 3 units/kg/hr. The client weighs 80 kg and the current rate is 1,400 units/hr. What rate in units/hr should resume?",
+  "note": ""
+ },
+ {
+  "id": "H35",
+  "set": "heldout",
+  "label": "hard",
+  "text": "A client receiving magnesium sulfate for severe preeclampsia has a respiratory rate of 9/min, absent patellar reflexes, urine output 20 mL/hr and a serum magnesium of 9.8 mg/dL. Which interventions are appropriate? Select all that apply.\nA) Stop the infusion\nB) Prepare calcium gluconate\nC) Increase the infusion rate\nD) Assess oxygen saturation and prepare to support ventilation\nE) Continue the current rate and recheck in 4 hours",
+  "note": ""
+ },
+ {
+  "id": "H36",
+  "set": "heldout",
+  "label": "hard",
+  "text": "The charge nurse must decide which client to see first: (1) potassium 6.4 mEq/L with peaked T waves, (2) post-op day 3 with a temperature of 38.1 °C, (3) diabetic ketoacidosis with pH 7.18, (4) new right-sided weakness that began 40 minutes ago. Which client first and why?",
+  "note": ""
+ }
+]

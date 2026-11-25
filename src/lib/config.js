@@ -109,24 +109,8 @@ export const MODES = {
     /* part A needs no answer, so it starts at second 0 and runs while the answer is still being solved → it can afford to THINK */
     writeA: { tier: "fast", levels: ["low", "minimal"], budget: 1024, maxOut: 20000, idleMs: 60000, firstMs: 100000 },
   },
-  /* v3.70 · chosen by the adaptive router (lib/difficulty.js), never typed by hand:
-     light     EASY question: no silent solve. Part A + ONE writer that solves by itself (2 requests instead of 3–4), shorter parts, low thinking.
-     deepflash HARD question on a SMALL / free key: its strong lane has no quota, so the depth is bought with thinking on Flash instead of a request that would 429. */
-  light: {
-    id: "light", label: "سريع", sub: "", icon: "scale", hidden: true,
-    skipSolve: true,
-    solve: { tier: "fast", levels: ["low", "minimal"], budget: 1024, maxOut: 14000, idleMs: 45000, firstMs: 60000 },
-    write: { tier: "fast", levels: ["minimal", "low"], budget: 0, maxOut: 14000, idleMs: 60000, firstMs: 90000, words: { a: 520, b: 720 } },
-    writeA: { tier: "fast", levels: ["minimal", "low"], budget: 0, maxOut: 14000, idleMs: 60000, firstMs: 90000 },
-  },
-  deepflash: {
-    id: "deepflash", label: "دقة قصوى", sub: "", icon: "target", hidden: true,
-    solve: { tier: "fast", levels: ["high", "medium"], budget: 8192, maxOut: 32000, idleMs: 90000, firstMs: 120000 },
-    write: { tier: "fast", levels: ["low", "minimal"], budget: 1024, maxOut: 24000, idleMs: 90000, firstMs: 120000, words: { a: 850, b: 1300 } },
-    writeA: { tier: "fast", levels: ["medium", "low"], budget: 2048, maxOut: 24000, idleMs: 90000, firstMs: 140000 },
-  },
   deep: {
-    id: "deep", label: "دقة قصوى", sub: "أعمق تفكير", icon: "target",
+    id: "deep", label: "أقوى تحليل", sub: "توكنز ووقت أكتر", icon: "target",
     solve: { tier: "pro", levels: ["high"], budget: 16384, maxOut: 40000, idleMs: 150000, firstMs: 240000 },
     write: { tier: "fast", levels: ["low", "minimal"], budget: 1024, maxOut: 24000, idleMs: 90000, firstMs: 120000, words: { a: 850, b: 1300 } },
     writeA: { tier: "fast", levels: ["medium", "low"], budget: 2048, maxOut: 24000, idleMs: 90000, firstMs: 140000 },
@@ -136,7 +120,7 @@ export const MODES = {
 /* v3.36 · how long (ms) the writers may wait for the silent solve's verified brief before they start WITHOUT it (the writer then solves by itself, exactly like the
    no-brief path that already existed for a failed solve). The brief is a quality bonus, never a reason for the whole lesson to stand still behind a stuck request.
    Mutable on purpose: the tests shrink it. */
-export const SOLVE_BOX = { balanced: 30000, deep: 120000, deepflash: 90000, light: 30000 };
+export const SOLVE_BOX = { balanced: 30000, deep: 120000 };
 
 /* v3.69 · TASK-CONTRACT PATH, ONE REQUEST (lib/taskcontract.js). Used automatically when the source prescribes its own numbered tasks.
    Why one request: on a free key the strong models have NO quota and a Flash model has about 20 requests a day and 5 a minute (AI Studio, Oct 2026),

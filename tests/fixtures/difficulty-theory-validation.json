@@ -1,0 +1,110 @@
+[
+ {
+  "id": "TV01",
+  "set": "theory-validation",
+  "label": "easy",
+  "text": "Which blood vessel carries blood away from the heart?\nA) Artery\nB) Vein\nC) Venule\nD) Capillary"
+ },
+ {
+  "id": "TV02",
+  "set": "theory-validation",
+  "label": "easy",
+  "text": "What is the unit of heredity?\nA) Gene\nB) Cell\nC) Organelle\nD) Tissue"
+ },
+ {
+  "id": "TV03",
+  "set": "theory-validation",
+  "label": "easy",
+  "text": "Which vitamin is produced in the skin after exposure to sunlight?\nA) Vitamin D\nB) Vitamin C\nC) Vitamin K\nD) Vitamin B12"
+ },
+ {
+  "id": "TV04",
+  "set": "theory-validation",
+  "label": "easy",
+  "text": "What is the term for inflammation of the liver?\nA) Hepatitis\nB) Nephritis\nC) Gastritis\nD) Pancreatitis"
+ },
+ {
+  "id": "TV05",
+  "set": "theory-validation",
+  "label": "easy",
+  "text": "Which structure prevents food from entering the trachea during swallowing?\nA) Epiglottis\nB) Uvula\nC) Larynx\nD) Esophagus"
+ },
+ {
+  "id": "TV06",
+  "set": "theory-validation",
+  "label": "easy",
+  "text": "What is the name of the sac that surrounds the heart?\nA) Pericardium\nB) Pleura\nC) Peritoneum\nD) Meninges"
+ },
+ {
+  "id": "TV07",
+  "set": "theory-validation",
+  "label": "medium",
+  "text": "What is the purpose of the sodium-potassium pump?\nA) It maintains ion gradients across the cell membrane\nB) It digests proteins\nC) It stores calcium\nD) It produces ATP"
+ },
+ {
+  "id": "TV08",
+  "set": "theory-validation",
+  "label": "medium",
+  "text": "How does a vaccine produce immunity?\nA) It exposes the immune system to an antigen so memory cells form\nB) It gives permanent antibodies from another person\nC) It kills all bacteria in the blood\nD) It replaces white blood cells"
+ },
+ {
+  "id": "TV09",
+  "set": "theory-validation",
+  "label": "medium",
+  "text": "Which statement describes the difference between benign and malignant tumors?\nA) Malignant tumors invade surrounding tissue and can metastasize; benign tumors do not\nB) Benign tumors always spread\nC) Malignant tumors never grow\nD) They differ only in color"
+ },
+ {
+  "id": "TV10",
+  "set": "theory-validation",
+  "label": "medium",
+  "text": "Why is the vagus nerve important for control of the heart rate?\nA) It slows the heart through parasympathetic input\nB) It increases the heart rate\nC) It controls blood clotting\nD) It stores energy"
+ },
+ {
+  "id": "TV11",
+  "set": "theory-validation",
+  "label": "medium",
+  "text": "What happens to cardiac output when the heart rate increases and the stroke volume stays the same?\nA) Cardiac output increases\nB) Cardiac output decreases\nC) Cardiac output does not change\nD) Cardiac output becomes zero"
+ },
+ {
+  "id": "TV12",
+  "set": "theory-validation",
+  "label": "medium",
+  "text": "How does the body respond to a fall in blood calcium?\nA) Parathyroid hormone is released and raises calcium\nB) Insulin is released\nC) Calcium is excreted more\nD) Thyroid hormone is blocked"
+ },
+ {
+  "id": "TV13",
+  "set": "theory-validation",
+  "label": "hard",
+  "text": "Which finding would distinguish central diabetes insipidus from nephrogenic diabetes insipidus?\nA) Urine concentrates after an exogenous antidiuretic hormone challenge in the central form but not in the nephrogenic form\nB) Both concentrate after the challenge\nC) Neither concentrates and both have high urine osmolality\nD) The central form has high urine osmolality at baseline"
+ },
+ {
+  "id": "TV14",
+  "set": "theory-validation",
+  "label": "hard",
+  "text": "A mutation prevents the voltage-gated sodium channel from inactivating. Which change in the action potential is expected and why?\nA) Prolonged depolarization with repetitive firing because the channel stays open and the membrane cannot repolarize\nB) Shortened action potential because potassium leaves faster\nC) No change because inactivation is irrelevant\nD) Hyperpolarization because sodium leaves the cell"
+ },
+ {
+  "id": "TV15",
+  "set": "theory-validation",
+  "label": "hard",
+  "text": "Which feature of the Frank-Starling relationship explains why a failing ventricle can maintain output at rest but not during exertion?\nA) The curve flattens, so the ventricle has little reserve to increase stroke volume when filling rises\nB) The curve steepens and gives extra reserve\nC) Heart rate falls with exertion\nD) Preload is unrelated to stroke volume"
+ },
+ {
+  "id": "TV16",
+  "set": "theory-validation",
+  "label": "hard",
+  "text": "If an infected cell loses MHC class I expression, which consequence follows and which cell type then becomes important for its destruction?\nA) Cytotoxic T cells cannot recognise it, so natural killer cells that detect missing self become important\nB) Helper T cells destroy it directly\nC) B cells present the antigen\nD) Nothing changes"
+ },
+ {
+  "id": "TV17",
+  "set": "theory-validation",
+  "label": "hard",
+  "text": "Which statement about oxygen delivery is correct?\nA) Delivery equals cardiac output times arterial oxygen content, so anemia and low output reduce it by different routes and invite different compensations\nB) Delivery depends only on hemoglobin\nC) Delivery depends only on the heart rate\nD) Delivery is unaffected by anemia"
+ },
+ {
+  "id": "TV18",
+  "set": "theory-validation",
+  "label": "hard",
+  "text": "Why does hyperglycemia cause an osmotic diuresis only after the renal threshold for glucose is exceeded?\nA) Transport capacity for reabsorption is saturated, so glucose remains in the tubule and holds water with it\nB) Glucose is secreted above the threshold\nC) Insulin blocks reabsorption above the threshold\nD) Glucose becomes toxic to the tubule"
+ }
+]

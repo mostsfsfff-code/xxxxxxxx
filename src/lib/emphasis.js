@@ -90,3 +90,49 @@ export function dirFor(s) {
   const en = (t.match(/[A-Za-z][A-Za-z0-9'’\-/.%+&]*/g) || []).length;
   return ar * 2 >= en ? "rtl" : "ltr";
 }
+
+
+/* v3.78 · ONE line that holds a whole English sentence AND a whole Arabic sentence (typically "English sentence … ثم ترجمتها/شرحها بالعربي") is split into
+   separate lines, English together and Arabic together, each in its own reading direction. Short English terms inside an Arabic sentence stay inline.
+   Pure local string work: no request, no tokens, no waiting. A line with a ==link== chip is never split. */
+const AR_W = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
+const EN_W = /[A-Za-z]/;
+export function splitMixed(src, { minEn = 4, minAr = 3 } = {}) {
+  const s = String(src || "");
+  if (s.length < 24 || s.includes("==") || !AR_W.test(s) || !EN_W.test(s)) return [s];
+  const words = s.split(/(\s+)/);                 // keep the spaces so the pieces re-join exactly
+  const kind = (w) => (AR_W.test(w) ? "ar" : EN_W.test(w) ? "en" : null);
+  /* runs of the same language (neutral words — numbers, dashes, emoji — ride along with the run before them) */
+  const runs = [];
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
+    if (!w.trim()) { if (runs.length) runs[runs.length - 1].text += w; else runs.push({ k: null, n: 0, text: w }); continue; }
+    const k = kind(w);
+    const last = runs[runs.length - 1];
+    if (!last || (k && last.k && last.k !== k)) runs.push({ k, n: k ? 1 : 0, text: w });
+    else { last.text += w; if (k) { last.k = last.k || k; last.n++; } }
+  }
+  const big = (r) => r.k === "en" ? r.n >= minEn : r.k === "ar" ? r.n >= minAr : false;
+  const segs = [];                                   // [{ k, text }]
+  for (const r of runs) {
+    const cur = segs[segs.length - 1];
+    if (big(r) && cur && cur.k && cur.k !== r.k) segs.push({ k: r.k, text: r.text });
+    else if (big(r) && cur && !cur.k) { cur.k = r.k; cur.text += r.text; }
+    else if (cur) cur.text += r.text;
+    else segs.push({ k: big(r) ? r.k : null, text: r.text });
+  }
+  if (segs.length < 2) return [s];
+  /* keep **bold** balanced across the cut: close it at the end of a piece, reopen it at the start of the next */
+  const out = [];
+  let open = false;
+  for (const g of segs) {
+    let x = g.text.trim().replace(/\s*[—–]\s*$/, "").replace(/^[—–]\s*/, "");   // the dash that joined the two sentences stays out of both lines
+    if (!x) continue;
+    if (open) x = "**" + x;
+    const marks = (x.match(/\*\*/g) || []).length;
+    open = marks % 2 === 1;
+    if (open) x += "**";
+    out.push(x);
+  }
+  return out.length > 1 ? out : [s];
+}

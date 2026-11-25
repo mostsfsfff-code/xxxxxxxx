@@ -1,0 +1,218 @@
+[
+ {
+  "id": "TD01",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "What is the main function of the large intestine?\nA) Absorb water\nB) Produce bile\nC) Digest protein\nD) Store glycogen"
+ },
+ {
+  "id": "TD02",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "Which term describes the absence of a pulse?\nA) Asystole\nB) Tachycardia\nC) Arrhythmia\nD) Bradypnea"
+ },
+ {
+  "id": "TD03",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "What is the name of the outer layer of the skin?\nA) Epidermis\nB) Dermis\nC) Hypodermis\nD) Fascia"
+ },
+ {
+  "id": "TD04",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "Which organ stores bile?\nA) Gallbladder\nB) Liver\nC) Pancreas\nD) Spleen"
+ },
+ {
+  "id": "TD05",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "The term anemia refers to:\nA) A reduced number of red blood cells or hemoglobin\nB) An excess of white blood cells\nC) A clotting disorder\nD) Low blood pressure"
+ },
+ {
+  "id": "TD06",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "Which hormone lowers blood glucose?\nA) Insulin\nB) Glucagon\nC) Cortisol\nD) Epinephrine"
+ },
+ {
+  "id": "TD07",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "What does the term hypoxia mean?\nA) Inadequate oxygen at the tissue level\nB) Excess carbon dioxide\nC) Low blood sugar\nD) High blood pressure"
+ },
+ {
+  "id": "TD08",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "Which bones make up the skull's cranial vault protection of the brain?\nA) Cranial bones\nB) Carpal bones\nC) Tarsal bones\nD) Vertebrae"
+ },
+ {
+  "id": "TD09",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "What is the basic functional unit of the kidney?\nA) Nephron\nB) Neuron\nC) Alveolus\nD) Sarcomere"
+ },
+ {
+  "id": "TD10",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "Which blood cells are primarily responsible for clotting?\nA) Platelets\nB) Lymphocytes\nC) Monocytes\nD) Eosinophils"
+ },
+ {
+  "id": "TD11",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "What is the term for the exchange of gases in the lungs?\nA) Respiration\nB) Digestion\nC) Excretion\nD) Secretion"
+ },
+ {
+  "id": "TD12",
+  "set": "theory-dev",
+  "label": "easy",
+  "text": "Which part of the brain controls balance and coordination?\nA) Cerebellum\nB) Cerebrum\nC) Pons\nD) Thalamus"
+ },
+ {
+  "id": "TD13",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "Why does the body shiver in a cold environment?\nA) Muscle contractions generate heat to maintain body temperature\nB) To increase blood glucose\nC) To reduce metabolism\nD) To dilate skin vessels"
+ },
+ {
+  "id": "TD14",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "How do the kidneys help regulate blood pressure?\nA) By adjusting sodium and water excretion and releasing renin\nB) By producing red blood cells only\nC) By storing blood\nD) By digesting fats"
+ },
+ {
+  "id": "TD15",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "What is the difference between a sign and a symptom?\nA) A sign is objective and observed; a symptom is subjective and reported\nB) A sign is reported; a symptom is observed\nC) They mean the same\nD) A symptom is a lab value"
+ },
+ {
+  "id": "TD16",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "Which best explains why a fever increases the heart rate?\nA) Higher temperature raises metabolic demand and oxygen requirement\nB) Fever lowers blood volume only\nC) Fever blocks the vagus nerve permanently\nD) Fever shrinks the heart"
+ },
+ {
+  "id": "TD17",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "How does insulin lower blood glucose?\nA) It promotes glucose uptake into cells and storage as glycogen\nB) It stops digestion\nC) It increases glucose release by the liver\nD) It destroys glucose"
+ },
+ {
+  "id": "TD18",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "What is the role of surfactant in the lungs?\nA) It reduces surface tension and keeps alveoli open\nB) It thickens mucus\nC) It filters air\nD) It increases airway resistance"
+ },
+ {
+  "id": "TD19",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "Why are older adults at higher risk of dehydration?\nA) Reduced thirst sensation and lower total body water\nB) Increased kidney size\nC) Higher metabolic rate\nD) More sweat glands"
+ },
+ {
+  "id": "TD20",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "Which statement best describes active transport?\nA) Movement of substances against a gradient using energy\nB) Movement along a gradient without energy\nC) Movement of water only\nD) Movement by gravity"
+ },
+ {
+  "id": "TD21",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "What is the main difference between arteries and veins?\nA) Arteries carry blood away from the heart under higher pressure; veins return blood and have valves\nB) Arteries always carry deoxygenated blood\nC) Veins have thicker walls\nD) Veins carry blood away from the heart"
+ },
+ {
+  "id": "TD22",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "Why does immobility increase the risk of pressure injury?\nA) Prolonged pressure reduces capillary blood flow to the tissue\nB) It increases skin thickness\nC) It raises oxygen levels in the skin\nD) It speeds up healing"
+ },
+ {
+  "id": "TD23",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "How does the parasympathetic system affect digestion?\nA) It stimulates secretion and motility\nB) It stops peristalsis\nC) It constricts the stomach permanently\nD) It has no effect"
+ },
+ {
+  "id": "TD24",
+  "set": "theory-dev",
+  "label": "medium",
+  "text": "What is the main purpose of the blood-brain barrier?\nA) To protect the brain by restricting passage of many substances\nB) To produce cerebrospinal fluid\nC) To store oxygen\nD) To insulate nerves"
+ },
+ {
+  "id": "TD25",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Why can a normal hemoglobin concentration coexist with tissue hypoxia in carbon monoxide poisoning, and why does the pulse oximeter fail to show it?\nA) CO binds hemoglobin with high affinity, reducing oxygen delivery and shifting the curve left, while the oximeter reads carboxyhemoglobin like oxyhemoglobin\nB) CO destroys red blood cells, so hemoglobin is low\nC) CO dissolves in plasma and raises the oxygen content\nD) The oximeter measures carbon dioxide"
+ },
+ {
+  "id": "TD26",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Which statement best explains why loop diuretics cause hypokalemia and metabolic alkalosis through the distal nephron, and why the effect is amplified by secondary hyperaldosteronism?\nA) Increased distal sodium delivery and volume contraction raise aldosterone and potassium and hydrogen secretion in the collecting duct\nB) Loop diuretics block potassium reabsorption in the proximal tubule only\nC) Aldosterone decreases potassium secretion\nD) Metabolic alkalosis results from bicarbonate loss"
+ },
+ {
+  "id": "TD27",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Distinguish the physiological basis of systolic heart failure from diastolic heart failure, and explain why ejection fraction cannot separate them in every case.\nA) Systolic failure reduces contractility and ejection fraction; diastolic failure impairs relaxation and filling with preserved ejection fraction, though mixed or recovered states overlap\nB) Both have reduced ejection fraction\nC) Diastolic failure is caused by increased contractility\nD) Ejection fraction measures filling pressure"
+ },
+ {
+  "id": "TD28",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Why does the Fick principle imply that cardiac output can be estimated from oxygen consumption and the arteriovenous oxygen difference, and which assumption fails in sepsis?\nA) Oxygen uptake equals flow times the arteriovenous content difference; in sepsis impaired extraction and shunting distort the difference\nB) Cardiac output equals heart rate times pressure\nC) The principle ignores hemoglobin\nD) It fails because oxygen is not consumed in sepsis"
+ },
+ {
+  "id": "TD29",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Which explanation best accounts for the finding that upregulation of one adhesion pathway can compensate when another is blocked, and why this undermines single-target therapy in chronic inflammation?\nA) Redundant overlapping signalling lets alternative pathways restore leukocyte recruitment\nB) Adhesion molecules are not involved in inflammation\nC) Blocking one pathway always blocks all others\nD) Compensation occurs only in infection"
+ },
+ {
+  "id": "TD30",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Why does the presence of a lupus anticoagulant prolong the aPTT in the laboratory yet increase thrombosis risk in the patient?\nA) The antibody interferes with phospholipid-dependent in-vitro clotting assays but promotes thrombosis in vivo by binding phospholipid-protein complexes on cells\nB) It destroys clotting factors in the body\nC) It lowers platelet production\nD) It dissolves clots"
+ },
+ {
+  "id": "TD31",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Which statement correctly distinguishes a Type I error from a Type II error and explains why lowering alpha raises the risk of the other?\nA) Type I rejects a true null; Type II fails to reject a false null; a stricter alpha makes rejection harder and so increases missed true effects\nB) Type I fails to reject a false null\nC) Lowering alpha lowers both errors\nD) They are unrelated"
+ },
+ {
+  "id": "TD32",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Why does chronic hypercapnia blunt the central chemoreceptor response, and how does that change which stimulus drives ventilation?\nA) Renal bicarbonate retention buffers cerebrospinal fluid pH, so hypoxic drive via peripheral chemoreceptors becomes more important\nB) Hypercapnia increases central sensitivity\nC) The brain stops sensing oxygen\nD) Ventilation is driven only by pH of urine"
+ },
+ {
+  "id": "TD33",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Explain why demyelination slows conduction and why a partially demyelinated axon may fail under high-frequency stimulation.\nA) Loss of saltatory conduction increases membrane capacitance and current leak; at high frequency the safety factor falls and conduction blocks\nB) Myelin increases resistance to sodium channels\nC) Demyelination speeds conduction\nD) Axons only fail when cut"
+ },
+ {
+  "id": "TD34",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Which of the following does NOT explain why hypoalbuminemia can alter the effect of a highly protein-bound drug?\nA) Higher free fraction increases effect\nB) Lower binding capacity increases the unbound drug\nC) Altered distribution of the drug\nD) Increased renal clearance of bound drug"
+ },
+ {
+  "id": "TD35",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "What distinguishes primary from secondary hyperparathyroidism in terms of calcium, phosphate and the underlying feedback defect?\nA) Primary: autonomous secretion with high calcium; secondary: compensatory secretion for low calcium such as in renal failure, with high phosphate\nB) Both have high calcium\nC) Secondary has autonomous secretion\nD) Primary is due to vitamin D excess only"
+ },
+ {
+  "id": "TD36",
+  "set": "theory-dev",
+  "label": "hard",
+  "text": "Why do patients with chronic metabolic acidosis hyperventilate, and why does compensation never fully normalise the pH?\nA) Low pH stimulates chemoreceptors to lower PaCO2, but compensation is limited by the lung's inability to overcorrect and by ongoing acid load\nB) Hyperventilation raises bicarbonate\nC) Kidneys excrete bicarbonate\nD) The brain ignores pH"
+ }
+]

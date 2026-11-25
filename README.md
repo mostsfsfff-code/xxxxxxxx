@@ -1,3 +1,9 @@
+## v3.80.0 — Exam items: lean and sharper (fewer tokens, no search wait)
+
+Found by a hard test item (HIT vs heparin protocol): a question with lettered options was treated like a real patient-care request. Every answer request carried the ~2,400-token universal healthcare protocol and the first one a live Google Search (slow, 429-prone, returned no links), and the student saw generic real-world warnings («dose frequency not explicit», «claim not linked to a source», «search returned nothing»). A patient's weight («80 kg») was also read as a medication dose. Now, for exam items (`isExamItem`, switch `EXAM_LEAN` in config.js): no search, a 7-rule exam protocol (~340 tokens) instead of the universal one (~2,440), no generic advisories; «kg» alone is no longer a dose. 609/609 tests, build OK. Live-model effect not measured.
+
+---
+
 ## v3.79.0 — Arabic / English reading order (display only, zero tokens)
 
 A line holding a whole English sentence and a whole Arabic sentence is now shown as two lines (English together, Arabic together, each in its own direction); short English terms stay inside the Arabic sentence. Arabic phrases are isolated like the English ones, so spaces and punctuation no longer jump sides. Pure local rendering in `emphasis.js` (`splitMixed`) and `rich.jsx`: no request, no tokens, no waiting. 605/605 tests, build OK.

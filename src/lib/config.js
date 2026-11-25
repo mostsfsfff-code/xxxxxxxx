@@ -153,3 +153,7 @@ export const CHEERS = [
 ];
 
 export const GOALS = [3, 5, 8, 10, 15, 20];
+
+/* v3.79 · exam items (a question with lettered options) skip live search, the generic healthcare protocol and the generic advisories (see clinical-quality.js).
+   Set false to restore the old behaviour for them. */
+export const EXAM_LEAN = true;

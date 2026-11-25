@@ -24,7 +24,7 @@ import { assessSolve, parseBrief, banner as makeBanner, reconcileLesson } from "
 import { auditClinicalCalculations, formatClinicalCalculationAudit, extractClinicalDataBlock, extractLabelledClinicalData, mergeOriginalSourceText, mergeExtractedClinicalData, replaceAuditItemsByMessage, stripPartialClinicalDataBlock, renderClinicalAuditForStudent, renderClinicalCalculationConflictForStudent, blocksClinicalSynthesisForCalculationConflict, buildPreGenerationCalculationHandoff, stripOptionReviewSection, extractCorrectAnswerSection, isBlockingConflict, GENERIC_CALCULATION_CONFLICT_AR, FORMULA_WITHHELD_AR } from "./clinical-calculations.js";
 import { filterTrustForBlockedClinicalSynthesis } from "./studentview.js";
 import { auditClinicalSafety, formatClinicalSafetyAudit, isPotentialClinicalContext } from "./clinical-safety.js";
-import { auditClinicalQuality, formatClinicalQualityAudit, formatGroundingSources, isHealthDomainContext, CLINICAL_QUALITY_INSTRUCTION } from "./clinical-quality.js";
+import { auditClinicalQuality, formatClinicalQualityAudit, formatGroundingSources, isHealthDomainContext, isExamItem, CLINICAL_QUALITY_INSTRUCTION, EXAM_QUALITY_INSTRUCTION } from "./clinical-quality.js";
 import { readSources } from "./sources.js";
 import { selectClaims, applyCached, applyVerdicts } from "./claims.js";
 import { addGaps } from "./reports.js";
@@ -39,7 +39,7 @@ import { sourceParts, sourceNote, itemsFromSaved } from "./docs.js";
 import { createFileCache, looksLikeFileError } from "./gfiles.js";
 import { stageOf, summarize } from "./latency.js";
 import { isSmallKey, orderForTask } from "./quota.js";
-import { PAID, SOLVE_BOX, tasksFor } from "./config.js";
+import { PAID, SOLVE_BOX, EXAM_LEAN, tasksFor } from "./config.js";
 
 export const TASK_KEYS = {
   ocr: ["original_question_text"],
@@ -282,7 +282,8 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
       } else if (safetySection && !/CLINICAL SAFETY REVIEW|مراجعة السلامة السريرية/.test(ex)) {
         ex = `${ex}\n\n## ⚠️ ${has(chips, "en") ? "Clinical safety review" : "مراجعة السلامة السريرية"}\n${safetySection}`;
       }
-      const qualitySection = qualityAudit.advisories.length
+      const examItemFinal = EXAM_LEAN && !L && isExamItem(`${ocrText}\n${sample()}\n${briefRaw}`);
+      const qualitySection = qualityAudit.advisories.length && !examItemFinal
         ? `## 🧭 ${has(chips, "en") ? "General healthcare quality checks" : "فحوص جودة الإجابة الصحية العامة"}\n${formatClinicalQualityAudit(qualityAudit, has(chips, "en") ? "en" : "ar")}`
         : "";
       if (qualitySection && !safetyAudit.conflicts.length && !calculationSynthesisBlocked) ex = `${ex}\n\n${qualitySection}`;
@@ -313,7 +314,7 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
         calculationAudit: audit.triggered ? { status: audit.status, results: audit.results, missingInputs: audit.missingInputs, conflicts: audit.conflicts } : null,
         clinicalSafetyAudit: safetyAudit.triggered ? safetyAudit : null,
         calculationSynthesisBlocked, clinicalSynthesisBlocked: synthesisSuppressed,
-        clinicalQualityAudit: qualityAudit.triggered ? qualityAudit : null,
+        clinicalQualityAudit: qualityAudit.triggered && !examItemFinal ? qualityAudit : null,
         medicalSearch: medicalSearchAttempted ? { performed: medicalSearchPerformed, sources: groundingSources.links.length, queries: groundingSources.queries } : null,
         stats: rt ? { ...rx.stats, unverified: rx.stats.unverified + rt.stats.unverified, corrected: rx.stats.corrected + rt.stats.corrected, verified: rx.stats.verified + rt.stats.verified, highRisk: rx.stats.highRisk + rt.stats.highRisk, unlabeledHighRisk: rx.stats.unlabeledHighRisk + rt.stats.unlabeledHighRisk, memorizable: rx.stats.memorizable + rt.stats.memorizable } : rx.stats,
         cards: rx.cards, conflicts: rx.conflicts, analogies: all.flatMap((r) => r.analogies.map((i) => i.sentence)), memoAids: all.flatMap((r) => r.memoAids.map((i) => i.sentence)), stripped: all.flatMap((r) => r.stripped.map((i) => ({ sentence: i.sentence, reason: i.reason }))),
@@ -363,14 +364,15 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
   /* one model call (one request at a time; busy → retried with backoff inside runTask) */
   const stageOnce = async (task, cfg, prompt, signal, onText) => {
     const healthContext = isHealthDomainContext(`${ocrText}\n${briefRaw}\n${sample()}\n${note}\n${prompt.user}`);
+    const examItem = EXAM_LEAN && !L && isExamItem(`${ocrText}\n${briefRaw}\n${sample()}\n${note}`);     // v3.79: a lettered-option exam item is not a patient-care request
     // One grounded evidence pass per analysis: solve-stage in deep mode, otherwise the main answer-writing stage.
     // Avoid attaching Google Search to OCR/word-list/formatting-only calls.
     const isAnswerStage = /^(?:solve:|lessonB|lessonM|lessonC)/i.test(task);
-    const useMedicalSearch = !!(healthContext && isAnswerStage && !medicalSearchAttempted && cfg.search !== false);
+    const useMedicalSearch = !!(healthContext && !examItem && isAnswerStage && !medicalSearchAttempted && cfg.search !== false);
     if (useMedicalSearch) medicalSearchAttempted = true;
     const originalSystem = prompt.system || "";
-    const system = healthContext && isAnswerStage && !originalSystem.includes("UNIVERSAL HEALTHCARE ANSWER QUALITY PROTOCOL")
-      ? `${originalSystem}\n\n${CLINICAL_QUALITY_INSTRUCTION}`
+    const system = healthContext && isAnswerStage && !originalSystem.includes("UNIVERSAL HEALTHCARE ANSWER QUALITY PROTOCOL") && !originalSystem.includes("EXAM ITEM QUALITY RULES")
+      ? `${originalSystem}\n\n${examItem ? EXAM_QUALITY_INSTRUCTION : CLINICAL_QUALITY_INSTRUCTION}`
       : originalSystem;
     const noSearchSystem = useMedicalSearch
       ? `${system}\n\nSEARCH LIMITATION: live medical search was unavailable or not completed for this response. Do not imply current guideline or source verification; clearly identify time-sensitive claims that still need checking.`

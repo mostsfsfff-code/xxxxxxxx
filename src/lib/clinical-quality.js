@@ -60,7 +60,7 @@ STATISTICAL CLAIMS: distinguish absolute from relative effects; show denominator
 const ABSOLUTE = /\b(?:always|never|only safe|only correct|guaranteed|certainly proves|rules? out completely|no risk|zero risk|definitive proof|must in every case)\b|100\s*%|دائمًا|أبدًا|الوحيد الآمن|مؤكد تمامًا|يثبت قطعًا|يستبعد تمامًا|بلا أي خطر|100\s*٪/i;
 const CURRENTNESS = /\b(?:latest|current|currently recommended|current standard|standard of care|new guideline|updated guideline|as of 20\d\d|recent guideline|FDA[- ]approved|EMA[- ]approved)\b|أحدث الإرشادات|الموصى به حاليًا|المعيار الحالي|معتمد حاليًا|الإرشادات المحدثة/i;
 const ACTION = /\b(?:start|initiat\w*|prescrib\w*|administer|give|stop|hold|withhold|discontinue|switch|increase|decrease|titrate|restart|resume|avoid|contraindicat\w*|perform|operate|refer urgently|admit)\b|ابدأ|أوقف|أعط[يى]|استخدم|زود|قلل|ارفع|اخفض|حوّل|استأنف|امنع|أجرِ|أدخل|حوّل للمستشفى/i;
-const DOSE = /\b\d+(?:\.\d+)?\s*(?:mg|mcg|µg|μg|g|kg|mL|ml|units?|IU|mEq|mmol|mg\/kg|mcg\/kg)(?:\s*\/\s*(?:kg|day|d|h|hr|min|dose))?\b/i;
+const DOSE = /\b\d+(?:\.\d+)?\s*(?:mg|mcg|µg|μg|g|mL|ml|units?|IU|mEq|mmol|mg\/kg|mcg\/kg)(?:\s*\/\s*(?:kg|day|d|h|hr|min|dose))?\b/i;
 const CONFIRM = /\b(?:confirms?|proves?|establishes?|diagnostic(?: of| for)|rules? out|excludes?)\b|يثبت|يؤكد|يشخص قطعًا|ينفي/i;
 const TEST_OR_MARKER = /\b(?:single|isolated|positive|negative|elevated|raised|abnormal)\b.{0,55}\b(?:test|assay|marker|biomarker|antibody|PCR|culture|troponin|D[- ]?dimer|ferritin|CRP|procalcitonin|galactomannan|beta[- ]?D[- ]?glucan|imaging|scan|mutation|variant|gene|serology|screen(?:ing)?)\b/i;
 const CLINICAL_INTERVENTION = /\b(?:dose|mg\s*\/|mcg\s*\/|prescrib\w*|start|stop|administer|anticoagulat\w*|antibiotic|insulin|opioid|chemotherapy|immunosuppress\w*|surgery|biopsy|intubat\w*|thrombolys\w*|dialysis|radiotherap\w*)\b|جرعة|وصف دواء|ابدأ|أوقف|مضاد حيوي|أنسولين|مضاد تجلط|جراحة|خزعة|تنبيب|غسيل كلوي|إشعاع/i;
@@ -149,3 +149,23 @@ export function formatGroundingSources(sources = [], queries = []) {
   const q = (queries || []).slice(0, 3).map((x) => `- ${x}`).join("\n");
   return `## ${"مصادر البحث التي ظهرت أثناء التحقق"}\n${rows}${q ? `\n\nعبارات البحث:\n${q}` : ""}\n\nملاحظة: ظهور المصدر في نتائج البحث لا يعني أنه يدعم كل ادعاء؛ يجب مراجعة النص الأصلي ومدى انطباقه.`;
 }
+
+
+/* v3.79 · an EXAM ITEM (a question with lettered options, A–C at least) is a study task, not a patient-care request:
+   no live search, none of the generic real-world advisories (dose frequency, prescription fields, source links), and a short rule set instead of the
+   ~2,400-token universal protocol. Fewer tokens, no search round-trip (the usual source of 429 / 503 waiting), and rules aimed at the mistakes exam answers actually make. */
+export function isExamItem(text = "") {
+  const letters = new Set();
+  for (const m of String(text || "").matchAll(/(?:^|[\s(])([A-H])[.)]\s+\S/g)) letters.add(m[1]);
+  return letters.has("A") && letters.has("B") && letters.has("C");
+}
+
+export const EXAM_QUALITY_INSTRUCTION = `
+EXAM ITEM QUALITY RULES:
+1) FIRST / BEST / PRIORITY: pick what comes first for THIS patient's data. A protocol, formula or routine option that is arithmetically right is still wrong when another stem finding makes it unsafe or inapplicable. Say which finding overrides it.
+2) Every wrong option: refute the reason written inside it (e.g. "because the count is above X"), in one concrete line. For a numeric option, recompute it once from the stem's numbers and show the arithmetic.
+3) Any number you derive (range, ratio, rate, percent change) must follow exactly from numbers you state; otherwise omit it. Never write "X times normal equals Y" unless the multiplication is exact.
+4) "If the question changed": change ONE stated finding; the new answer must still obey the FIRST/priority order; when two actions are needed name the earlier one. Never name a rescue or reversal option as the first action when stopping or assessing comes first.
+5) Arabic lines translate the English line before them: same claim, nothing added. No mechanism claims inside analogies; never say a drug "thins" viscosity or "dissolves" clots unless that is its true action.
+6) The English decode keeps every number, unit, negation ("no bleeding", "stable") and the final question word.
+7) Say "always/never/fatal" only for a standard safety rule, and name the rule.`;

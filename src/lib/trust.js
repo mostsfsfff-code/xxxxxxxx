@@ -5,6 +5,7 @@ import { analyze, render, HIGH_RISK, indexSource } from "./accuracy.js";
 import { buildSourceModel, locate, groundSentence } from "./provenance.js";
 import { loadKb, kbReady } from "./kb/index.js";
 import { checkItems, referenceCards, knownToKb } from "./kb/check.js";
+import { repairDecode } from "./decode-coverage.js";
 
 /* loads the modules for the profile, then runs one throw-away pass so every regex is compiled BEFORE the first real result (off the critical path) */
 export const ensureKb = (profile) => loadKb(profile).then((f) => {
@@ -18,6 +19,7 @@ export function verifyText({ text, source = "", sourceModel = null, profile, par
   const model = sourceModel || buildSourceModel({ items: source && source.trim() ? [{ t: "text", name: "source", text: source }] : [] });
   const clean = model.text;
   const idxText = part === "B" ? clean + "\n" + (brief || "") : clean;
+  if (part === "A") text = repairDecode(text, clean);                      // v3.82: stem sentences the model dropped from "decode the English" are put back verbatim
   const res = analyze(text, { index: idxText.trim() ? indexSource(idxText) : null, part, titles, known: (s) => knownToKb(s, profile), locate: model.segments.length ? (s) => locate(model, s) : null });
   const { patches, gaps } = checkItems(res.items, { profile, now, patient, ground: part === "A" ? (c) => groundSentence(model, c) : null });
   /* the SOURCE itself against the KB, for every source type and both parts: "source says X, reference says Y" (the source is never silently rewritten) */

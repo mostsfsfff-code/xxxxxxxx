@@ -1,3 +1,15 @@
+## v3.82.0 — Decode never drops a deciding sentence · no invented acronyms
+
+(1) «فكّ السؤال بالإنجليزي»: the model kept 3–6 chunks and silently dropped the weight, the protocol with its numbers, «Hemoglobin: stable», «No bleeding». `decode-coverage.js` now puts every stem sentence that holds a number, a rule/protocol, a negation or the question back VERBATIM, in stem order, when the model did not cover it (local, zero tokens; options are never added; covered sentences are never repeated). The prompt rule says the same in the same number of characters. (2) `inventedAcronym` (accuracy.js): «HIT = Halt It Today»-style acronyms (ordinary words picked to spell letters) are removed in Part B too, not boxed; standard mnemonics (ABC, SBAR, MONA…) and real expansions (defined in the answer/source, or built from long medical words) stay. 616/616 tests, build OK.
+
+---
+
+## v3.81.0 — Broken sentences fixed (root cause) + timing line names the failing model
+
+Found by the second run of the heparin / HIT test item. (1) `accuracy.js` split a sentence after EVERY closing `**bold**`, which cut "Heparin activates **antithrombin III** (a natural…)" in two: the tail was boxed as a "mnemonic", translations lost their end and orphan fragments ("النهاردة وفورا.") were left in the body. A closing `**` is now a boundary only when the bold span itself ends a sentence. (2) My v3.79 `splitMixed` over-split: a long English term inside an Arabic sentence, or the first Arabic word after the dash, became separate lines. It now makes exactly one cut between two whole sentences, at the dash. (3) The timing line lists each failed attempt (status, model, seconds) so a 503 can be traced to a model. 612/612 tests, build OK.
+
+---
+
 ## v3.80.0 — Exam items: lean and sharper (fewer tokens, no search wait)
 
 Found by a hard test item (HIT vs heparin protocol): a question with lettered options was treated like a real patient-care request. Every answer request carried the ~2,400-token universal healthcare protocol and the first one a live Google Search (slow, 429-prone, returned no links), and the student saw generic real-world warnings («dose frequency not explicit», «claim not linked to a source», «search returned nothing»). A patient's weight («80 kg») was also read as a medication dose. Now, for exam items (`isExamItem`, switch `EXAM_LEAN` in config.js): no search, a 7-rule exam protocol (~340 tokens) instead of the universal one (~2,440), no generic advisories; «kg» alone is no longer a dose. 609/609 tests, build OK. Live-model effect not measured.

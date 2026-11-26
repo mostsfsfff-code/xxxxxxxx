@@ -74,7 +74,9 @@ export function originOf(sentence, idx) {
 
 /* ── 2 · sentences ── */
 const PREFIX = /^(\s*(?:#{1,4}\s+|[-*•]\s+|>\s+|\d+[.)]\s+))?/;
-const SPLIT = /(?<=[.!?؟؛]|\*\*)\s+(?=[A-Z\u0600-\u06FF*>"«(\d])/;
+/* v3.80 · a closing ** is a boundary only when the bold span ENDS a sentence ("**Do this.** Next"). It used to split after every **term**, which cut
+   "Heparin activates **antithrombin III** (a natural …)" in two, boxed the tail as a "mnemonic" and left orphan fragments in the body. */
+const SPLIT = /(?<=[.!?؟؛]|[.!?؟؛]\*\*)\s+(?=[A-Z\u0600-\u06FF*>"«(\d])/;
 
 /* → lines: [{ raw, prefix, heading, body, sentences:[string] }] */
 export function splitText(text) {
@@ -135,6 +137,7 @@ export function analyze(text, opts = {}) {
   const clean = cleanResidue(text, opts.titles);
   const idx = opts.index || (opts.source ? indexSource(opts.source) : null);
   const lines = splitText(clean);
+  const defined = definedAcronyms(clean + "\n" + (opts.source || ""));
   const items = [], analogies = [], stripped = [], memoAids = [];
   const layout = [];                                                          // the page as lines: a fixed line, or { prefix, ids } rebuilt from the (possibly patched) items
   let id = 0;
@@ -155,6 +158,7 @@ export function analyze(text, opts = {}) {
       const item = { id: `s${id++}`, line: li, sentence: s, kind, origin, overlap: Math.round(o.score * 100) / 100 };
       if (opts.locate && origin === "source") { const pv = opts.locate(s); if (pv) item.prov = pv; }
       if (kind === "analogy") { analogies.push(item); continue; }            // never in the body: goes to the analogy box
+      if (kind === "mnemonic" && origin !== "source" && !opts.known?.(s) && inventedAcronym(s, defined)) { stripped.push({ ...item, reason: "invented-acronym" }); continue; }
       if ((kind === "mnemonic" || kind === "framework") && origin !== "source") {
         if (part === "A" && !opts.known?.(s)) { stripped.push({ ...item, reason: kind + "-not-in-source" }); continue; }
         if (part === "B" && !opts.known?.(s)) { memoAids.push(item); continue; }   // Part B: the AI is the only author → boxed + labeled, never memorize
@@ -172,4 +176,35 @@ export function analyze(text, opts = {}) {
 export function render(res) {
   const by = new Map(res.items.map((i) => [i.id, i]));
   return res.layout.map((l) => (l.raw !== undefined ? l.raw : l.prefix + l.ids.map((id) => { const i = by.get(id); return i.text != null ? i.text : i.sentence; }).join(" "))).join("\n").replace(/\n{3,}/g, "\n\n");
+}
+
+
+/* v3.82 · an INVENTED acronym ("HIT = Halt It Today": ordinary words picked only to spell the letters) is never shown, not even in the AI-suggested box.
+   Kept: standard exam mnemonics, and a real expansion of a term (it is defined elsewhere in the answer / source, or built from long medical words). */
+const STD_ACR = new Set(["ABC", "ABCS", "ABCDE", "SBAR", "ISBAR", "MONA", "RICE", "FAST", "BEFAST", "PASS", "SAMPLE", "OPQRST", "PQRST", "ADPIE", "DOPE", "MARCH", "SOAP", "CAGE", "APGAR", "PEARRL", "MUDPILES", "SLUDGE", "DUMBELS", "HEENT", "TICLS", "ACLS", "BLS", "CPR", "AVPU", "GCS", "ADLS", "SIRS", "CURB", "TORCH", "STAT"]);
+const initialsOf = (w) => w.map((x) => x[0].toUpperCase()).join("");
+const normLetters = (x) => String(x).toLowerCase().replace(/[^a-z]/g, "");
+export function definedAcronyms(text) {
+  const m = new Map();
+  const t = String(text || "").replace(/\*\*/g, "");
+  for (const x of t.matchAll(/((?:[A-Za-z][A-Za-z'-]*\s+){1,7}[A-Za-z][A-Za-z'-]*)\s*\(([A-Z]{2,7})\)/g)) {
+    const w = x[1].split(/[\s-]+/).filter(Boolean);
+    for (let k = Math.min(w.length, x[2].length); k >= 1; k--) { const tail = w.slice(w.length - k); if (initialsOf(tail) === x[2]) { m.set(x[2], normLetters(tail.join(""))); break; } }
+  }
+  for (const x of t.matchAll(/\b([A-Z]{2,7})\s*\(((?:[A-Za-z][A-Za-z'-]*\s*){2,8})\)/g)) { const w = x[2].trim().split(/[\s-]+/).filter(Boolean); if (initialsOf(w) === x[1]) m.set(x[1], normLetters(w.join(""))); }
+  return m;
+}
+export function inventedAcronym(sentence, defined = new Map()) {
+  const t = String(sentence || "").replace(/\*\*/g, "");
+  const m = t.match(/\b([A-Z]{2,7})\b\s*(?:=|:|stands for|means|→)\s*((?:[A-Za-z][A-Za-z'-]*[\s-]*){2,9})/);
+  if (!m) return false;
+  const acr = m[1];
+  if (STD_ACR.has(acr)) return false;
+  const words = m[2].trim().split(/[\s-]+/).filter(Boolean);
+  const take = words.slice(0, acr.length);
+  if (initialsOf(take) !== acr) return false;                                   // the words do not spell it: not an acronym mnemonic
+  if (words.some((w) => w.length >= 9 || /(?:itis|emia|aemia|pathy|penia|osis|ectomy|plasty|scopy|algia|uria)$/i.test(w))) return false;   // built from real medical words: a definition
+  const def = defined.get(acr);
+  if (def && def === normLetters(take.join(""))) return false;                  // exactly the expansion the answer / source gives
+  return true;
 }

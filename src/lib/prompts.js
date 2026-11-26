@@ -237,7 +237,7 @@ ${H.ask}
 - One bullet: the question type in English (for example **priority**, **safety**, **pharmacology**, **lab values** …) and, in one line, what the examiner wants from the student.
 - One more bullet: the exam topic category this item tests (in English, with a short Arabic gloss).
 ${H.decode}
-- Split the stem into 3 to 6 short English chunks. One bullet per chunk: **English chunk** — its meaning.
+- One bullet per stem sentence with a number, rule, negation or the question: **English chunk** — meaning.
 - One bullet for the decisive keyword (**FIRST**, **BEST**, **EXCEPT**, **NEXT**, **priority**, **further teaching** …) and what it changes.
 ${H.basics}
 - For each concept the question needs (1 to 4 concepts): **Term** — a simple English definition (A2 words); then 1 to 3 lines that explain it from zero with an everyday analogy; then WHY it happens inside the body (2 to 3 simple cause → effect lines); then the key facts to memorize (signs and symptoms, causes, normal ranges, clinical actions) — each fact on its own line, English first; then ONE "clinical pearl" line: the number, threshold or red flag the exam loves.
@@ -363,7 +363,7 @@ ${H.ask}
 - One bullet: the question type in English (for example **priority**, **safety**, **pharmacology**, **lab values** …) and, in one line, what the examiner wants from the student.
 - One more bullet: the exam topic category this item tests (in English, with a short Arabic gloss).
 ${H.decode}
-- Split the stem into 3 to 6 short English chunks. One bullet per chunk: **English chunk** — its meaning.
+- One bullet per stem sentence with a number, rule, negation or the question: **English chunk** — meaning.
 - One bullet for the decisive keyword (**FIRST**, **BEST**, **EXCEPT**, **NEXT**, **priority**, **further teaching** …) and what it changes.
 ${H.basics}
 - For each concept the question needs (1 to 4 concepts): **Term** — a simple English definition (A2 words); then 1 to 3 lines that explain it from zero with an everyday analogy; then WHY it happens inside the body (2 to 3 simple cause → effect lines); then the key facts to memorize (signs and symptoms, causes, normal ranges, clinical actions) — each fact on its own line, English first; then ONE "clinical pearl" line: the number, threshold or red flag the exam loves.

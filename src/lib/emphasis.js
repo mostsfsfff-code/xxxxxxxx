@@ -92,47 +92,54 @@ export function dirFor(s) {
 }
 
 
-/* v3.78 · ONE line that holds a whole English sentence AND a whole Arabic sentence (typically "English sentence … ثم ترجمتها/شرحها بالعربي") is split into
-   separate lines, English together and Arabic together, each in its own reading direction. Short English terms inside an Arabic sentence stay inline.
-   Pure local string work: no request, no tokens, no waiting. A line with a ==link== chip is never split. */
+/* v3.78/v3.80 · ONE line that holds a whole English sentence AND a whole Arabic sentence ("English sentence — ترجمتها بالعربي") is shown as two lines, English
+   together and Arabic together, each in its own direction. STRICT: exactly one cut, between two whole sentences. An English term (even a long one) inside an
+   Arabic sentence is never a cut, and a short Arabic word right after the dash belongs to the Arabic sentence. Pure local string work: no request, no tokens.
+   A line with a ==link== chip is never split. */
 const AR_W = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
 const EN_W = /[A-Za-z]/;
-export function splitMixed(src, { minEn = 4, minAr = 3 } = {}) {
-  const s = String(src || "");
-  if (s.length < 24 || s.includes("==") || !AR_W.test(s) || !EN_W.test(s)) return [s];
-  const words = s.split(/(\s+)/);                 // keep the spaces so the pieces re-join exactly
-  const kind = (w) => (AR_W.test(w) ? "ar" : EN_W.test(w) ? "en" : null);
-  /* runs of the same language (neutral words — numbers, dashes, emoji — ride along with the run before them) */
-  const runs = [];
-  for (let i = 0; i < words.length; i++) {
-    const w = words[i];
-    if (!w.trim()) { if (runs.length) runs[runs.length - 1].text += w; else runs.push({ k: null, n: 0, text: w }); continue; }
-    const k = kind(w);
-    const last = runs[runs.length - 1];
-    if (!last || (k && last.k && last.k !== k)) runs.push({ k, n: k ? 1 : 0, text: w });
-    else { last.text += w; if (k) { last.k = last.k || k; last.n++; } }
-  }
-  const big = (r) => r.k === "en" ? r.n >= minEn : r.k === "ar" ? r.n >= minAr : false;
-  const segs = [];                                   // [{ k, text }]
-  for (const r of runs) {
-    const cur = segs[segs.length - 1];
-    if (big(r) && cur && cur.k && cur.k !== r.k) segs.push({ k: r.k, text: r.text });
-    else if (big(r) && cur && !cur.k) { cur.k = r.k; cur.text += r.text; }
-    else if (cur) cur.text += r.text;
-    else segs.push({ k: big(r) ? r.k : null, text: r.text });
-  }
-  if (segs.length < 2) return [s];
-  /* keep **bold** balanced across the cut: close it at the end of a piece, reopen it at the start of the next */
-  const out = [];
-  let open = false;
-  for (const g of segs) {
-    let x = g.text.trim().replace(/\s*[—–]\s*$/, "").replace(/^[—–]\s*/, "");   // the dash that joined the two sentences stays out of both lines
+const wordStats = (x) => { let ar = 0, en = 0; for (const w of String(x).split(/\s+/)) { if (AR_W.test(w)) ar++; else if (EN_W.test(w)) en++; } return { ar, en }; };
+const sentenceLike = (x, en) => en >= 5 || /[.!?:؟]\s*(?:\*\*)?$/.test(x.trim());
+const balanceBold = (parts) => {
+  const out = []; let open = false;
+  for (const g of parts) {
+    let x = g.trim().replace(/\s*[—–]\s*$/, "").replace(/^[—–]\s*/, "");
     if (!x) continue;
     if (open) x = "**" + x;
-    const marks = (x.match(/\*\*/g) || []).length;
-    open = marks % 2 === 1;
+    open = ((x.match(/\*\*/g) || []).length % 2) === 1;
     if (open) x += "**";
     out.push(x);
   }
-  return out.length > 1 ? out : [s];
+  return out;
+};
+export function splitMixed(src, { minEn = 4, minAr = 3 } = {}) {
+  const s = String(src || "");
+  if (s.length < 24 || s.includes("==") || !AR_W.test(s) || !EN_W.test(s)) return [s];
+  const okEn = (x) => { const w = wordStats(x); return w.en >= minEn && w.ar * 3 <= w.en && sentenceLike(x, w.en); };
+  const okAr = (x) => { const w = wordStats(x); return w.ar >= minAr && w.en * 2 <= w.ar + 1; };
+  /* 1 · a dash between the two sentences */
+  for (const m of s.matchAll(/\s[—–]\s/g)) {
+    const l = s.slice(0, m.index), r = s.slice(m.index + m[0].length);
+    if ((okEn(l) && okAr(r)) || (okAr(l) && okEn(r))) { const o = balanceBold([l, r]); if (o.length === 2) return o; }
+  }
+  /* 2 · no dash: exactly two big runs of different languages, one cut at the first word of the second language */
+  const words = s.split(/(\s+)/);
+  const kind = (w) => (AR_W.test(w) ? "ar" : EN_W.test(w) ? "en" : null);
+  const runs = [];
+  for (const w of words) {
+    if (!w.trim()) { if (runs.length) runs[runs.length - 1].text += w; else runs.push({ k: null, n: 0, text: w }); continue; }
+    const k = kind(w), last = runs[runs.length - 1];
+    if (!last || (k && last.k && last.k !== k)) runs.push({ k, n: k ? 1 : 0, text: w });
+    else { last.text += w; if (k) { last.k = last.k || k; last.n++; } }
+  }
+  const big = runs.map((r, i) => (r.k === "en" ? r.n >= minEn : r.k === "ar" ? r.n >= minAr : false) ? i : -1).filter((i) => i >= 0);
+  if (big.length !== 2 || runs[big[0]].k === runs[big[1]].k) return [s];
+  const B = runs[big[1]].k;
+  let cut = big[1];
+  for (let i = big[0] + 1; i < big[1]; i++) if (runs[i].k === B) { cut = i; break; }
+  const left = runs.slice(0, cut).map((r) => r.text).join(""), right = runs.slice(cut).map((r) => r.text).join("");
+  const ok = runs[big[0]].k === "en" ? okEn(left) && okAr(right) : okAr(left) && okEn(right);
+  if (!ok) return [s];
+  const o = balanceBold([left, right]);
+  return o.length === 2 ? o : [s];
 }

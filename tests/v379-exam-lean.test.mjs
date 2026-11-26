@@ -61,3 +61,11 @@ test("an exam item: no search, the short rules instead of the universal protocol
   const final = trust.find((x) => x.phase === "final");
   assert.ok(!final || !final.medicalSearch);
 });
+
+import { splitText } from "../src/lib/accuracy.js";
+test("v3.80 · a **bold term** in the middle of a sentence is not a sentence boundary", () => {
+  const l = splitText("Heparin activates **antithrombin III** (a natural body protein) → clotting factors slow down — الدواء بينشط **antithrombin III** فده بيبطئ العوامل")[0];
+  assert.equal(l.sentences.length, 1);
+  const m = splitText("**Do this first.** Then stop the drip.")[0];
+  assert.equal(m.sentences.length, 2);
+});

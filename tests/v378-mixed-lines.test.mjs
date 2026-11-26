@@ -21,3 +21,13 @@ test("bold stays balanced across the cut and the joining dash is dropped", () =>
   const d = splitMixed("Priority action: assess airway first — المريض لازم نقيّم مجرى الهواء الأول قبل أي حاجة");
   assert.ok(!/—\s*$/.test(d[0]));
 });
+
+test("v3.80 · the dangling Arabic word after the dash goes with the Arabic sentence", () => {
+  const r = splitMixed("Clinical pearl: High aPTT with no bleeding usually means lowering the dose, unless HIT is happening at the same time — ارتفاع aPTT من غير نزيف معناه غالبا تقليل الجرعة");
+  assert.equal(r.length, 2);
+  assert.match(r[0], /same time$/);
+  assert.match(r[1], /^ارتفاع aPTT/);
+});
+test("v3.80 · a long English term in the middle of an Arabic sentence is never cut out", () => {
+  for (const s of ["الأعراض الجديدة: المريض عنده ألم وتورم ودي علامة على new deep vein thrombosis (DVT) جلطة جديدة في الوريد العميق", "طلب دواء protamine sulfate هو ال antidote للهيبارين لكنه يستخدم فقط لو فيه نزيف"]) assert.deepEqual(splitMixed(s), [s]);
+});

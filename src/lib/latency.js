@@ -18,6 +18,7 @@
    Plain logic: no network, no DOM, no storage → it is tested in Node (tests/latency.test.mjs). */
 
 const ms = (n) => Math.max(0, Math.round(Number(n) || 0));
+const s0 = (n) => `${Math.round(Math.max(0, Number(n) || 0) / 1000)}ث`;
 
 /* a short label for one failed attempt: "503", "429", "timeout", "empty" … */
 export function whyFailed(a) {
@@ -39,7 +40,7 @@ export function breakdown(trace) {
   const out = {
     task: trace.task || "", ok: !!win, totalMs, lostMs: 0, waitMs: 0, thinkMs: 0, writeMs: 0, thinkEst: false,
     thoughtTokens: 0, outTokens: 0, promptTokens: 0, tps: 0,
-    failed: failed.map(whyFailed), hedges: trace.hedges || 0, sleptMs: ms(trace.slept), attempts: atts.length,
+    failed: failed.map(whyFailed), failedDetail: failed.map((a) => `${whyFailed(a)} ${a.lane || ""} بعد ${s0(a.endAt - a.t0)}`.replace(/\s+/g, " ")), hedges: trace.hedges || 0, sleptMs: ms(trace.slept), attempts: atts.length,
     lane: win ? win.lane : "", tier: win ? win.tier || "" : "", gwMs: win ? ms(win.gwMs) : 0,
   };
   if (!win) { out.lostMs = totalMs; return out; }
@@ -82,6 +83,7 @@ export function summarize(traces) {
     ...crit,
     calls: rows.length,
     failedAll: failed,
+    failedDetailAll: rows.flatMap((r) => r.failedDetail || []),
     hedgesAll: rows.reduce((n, r) => n + r.hedges, 0),
     unfinished: rows.filter((r) => !r.ok).length,
   };
@@ -96,7 +98,7 @@ export function describe(sum) {
   const parts = [];
   if (sum.lostMs >= 1500) {
     const why = tally(sum.failed);
-    parts.push(`ضاع ${s1(sum.lostMs)} في محاولات فاشلة وانتظار${why ? ` (${why})` : ""}`);
+    parts.push(`ضاع ${s1(sum.lostMs)} في محاولات فاشلة وانتظار${why ? ` (${why})` : ""}${(sum.failedDetailAll || []).length ? ` [${sum.failedDetailAll.slice(0, 4).join(" · ")}]` : ""}`);
   }
   if (sum.waitMs >= 800) parts.push(`انتظار أول رد ${s1(sum.waitMs)}`);
   if (sum.thinkMs >= 800) parts.push(`تفكير ${sum.thinkEst ? "≈" : ""}${s1(sum.thinkMs)}`);

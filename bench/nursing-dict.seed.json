@@ -1,0 +1,17 @@
+{
+  "_note": "SEED for the bench only. Every entry needs clinical review before Phase 4. 'bad' = literal/wrong renderings OBSERVED in real model output (empty until observed; while empty the bench cannot measure translation errors).",
+  "entries": [
+    { "abbr": "aPTT", "en": "activated partial thromboplastin time", "ar": "زمن الثرومبوبلاستين الجزئي المنشَّط", "bad": [] },
+    { "abbr": "INR", "en": "international normalized ratio", "ar": "النسبة المعيارية الدولية", "bad": [] },
+    { "abbr": "CVP", "en": "central venous pressure", "ar": "الضغط الوريدي المركزي", "bad": [] },
+    { "abbr": "GCS", "en": "Glasgow Coma Scale", "ar": "مقياس غلاسكو للغيبوبة", "bad": [] },
+    { "abbr": "NPO", "en": "nothing by mouth", "ar": "الامتناع عن الطعام والشراب", "bad": [] },
+    { "abbr": "PRN", "en": "as needed", "ar": "عند الحاجة", "bad": [] },
+    { "abbr": "BID", "en": "twice daily", "ar": "مرتين يوميًا", "bad": [] },
+    { "abbr": "TID", "en": "three times daily", "ar": "ثلاث مرات يوميًا", "bad": [] },
+    { "abbr": "QID", "en": "four times daily", "ar": "أربع مرات يوميًا", "bad": [] },
+    { "abbr": "SpO2", "en": "oxygen saturation", "ar": "تشبُّع الأكسجين في الدم", "bad": [] },
+    { "abbr": "ABG", "en": "arterial blood gas", "ar": "غازات الدم الشرياني", "bad": [] },
+    { "abbr": "DVT", "en": "deep vein thrombosis", "ar": "تجلُّط الأوردة العميقة", "bad": [] }
+  ]
+}

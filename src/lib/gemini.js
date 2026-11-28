@@ -9,10 +9,11 @@
    v3.23 — 429 / 503 FIX (read this first)
    • NO MORE HEDGING: the old engine started a SECOND request to another model whenever the first was slow. Google counts every
      request, so a busy moment doubled the traffic and kept the key rate-limited. Now there is exactly ONE request at a time.
-   • withBackoff(): a transient failure (429 per-minute · 500/502/503/504 · timeout · dropped line · empty reply) is retried at most
-     3 times, after 2 s, 4 s, 8 s (+ a random jitter so parallel tasks never retry in the same millisecond). A "retry in Ns" hint
-     from Google is honoured (up to 20 s); a longer one stops at once. After that the student gets a calm "try again in a minute"
-     message instead of an endless loop. Dead models (404 / retired / daily quota) are skipped WITHOUT waiting.
+   v3.84 — ZERO-SLEEP, NO HEDGING (supersedes the v3.26 hedging note above and the v3.23 retry-with-backoff note)
+   • HEDGING is switched off (config HEDGING = false): a lane is never raced against a silent one. A silent lane is given up at its silence limit.
+   • withBackoff / BACKOFF were removed: a failed request hands over to the next lane at once. When every lane is asleep the engine waits at most 4 s, then says "busy".
+   • Only the fixed official model names (models.js) are listed and requested; Gemini 3+ never gets logprobs or a thinking budget; the question path is lib/one-call.js.
+   Dead models (404 / retired / daily quota) are skipped WITHOUT waiting.
    • The API key travels in the `x-goog-api-key` header (the documented way) instead of the URL, so it never lands in logs.
    • The model is configurable: VITE_GEMINI_MODEL (default gemini-2.5-flash) and VITE_GEMINI_MODEL_PRO — see config.js.
 
@@ -39,7 +40,8 @@
 import { mergeGrounding } from "./sources.js";
 import * as Ring from "./keyring.js";
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
-import { MODEL_FAST, MODEL_PRO, GATEWAY_URL, GATEWAY_TOKEN, API_BASE_URL, NET, PAID, cap, SERVICE_TIER } from "./config.js";
+import { MODELS, ALLOWED_MODELS, assertModel, clampLevel } from "./models.js";
+import { HEDGING, MODEL_FAST, MODEL_PRO, GATEWAY_URL, GATEWAY_TOKEN, API_BASE_URL, NET, PAID, cap, SERVICE_TIER } from "./config.js";
 import { tierOf, taskClass, mediaOf, estimateTokens, tierStages, planLanes, hedgeDelayMs, nextReadyIn, readyLanes, begin as laneBegin, noteOk, noteBusy, noteDead, noteTooBig, noteSlow, clearDead as clearDeadLanes, clearCool as clearCoolLanes, coolFor, setBias, isDead, isCooling } from "./router.js";
 import { makeGuard, REWRITE_AT, allowRetry, PROOF_TASK } from "./guard.js";
 import { proofOn, allowProof, shouldProof, chunkForProof, parseProof, applyProof, PROOF_SYSTEM, PROOF_MS, smallKeyGate, proofBusy, proofStart, proofEnd, foldClaims, parseVerdicts, claimsGrounding } from "./proof.js";
@@ -177,12 +179,13 @@ export const rawRequest = (method, url, body, timeoutMs, apiKey) => rawRequestH(
 
 /* ── model lists (cached, never blocking) ── */
 
-/* Only "-latest" aliases + the current generation: Google moves the aliases forward by itself, so these keep working
-   when a specific model is retired. gemini-2.5-* is NOT here on purpose (404 for every key that never used it). */
+/* v3.84 · FIXED official names only (models.js): no "-latest" alias is ever listed or requested, and no model outside the allowed set. Free keys have their quota per
+   model, so the Flash-Lite family does the daily work and the standard Flash model is the rare escalation. */
 const DEFAULT_LISTS = {
-  fast: [MODEL_FAST, "gemini-flash-latest", "gemini-flash-lite-latest"],
-  pro: [MODEL_PRO, "gemini-pro-latest", "gemini-3.1-pro-preview"],
+  fast: [...new Set([MODEL_FAST, MODELS.primary, MODELS.fallback])],
+  pro: [...new Set([MODEL_PRO, MODELS.escalation, MODELS.escalationAlt])],
 };
+const allowedName = (m) => ALLOWED_MODELS.includes(m) || m === MODEL_FAST || m === MODEL_PRO;
 const LS_MODELS = "clinix:models:v5";
 const keyTag = (k) => (k || "").slice(-8);
 let _lists = null;
@@ -250,7 +253,7 @@ const modelRank = (n) => {
 
 const withSuggestions = (apiKey, lists) => {
   const dead = deadSet(apiKey);
-  const extra = readSuggest(apiKey).filter((m) => !dead.has(m));
+  const extra = readSuggest(apiKey).filter((m) => !dead.has(m) && allowedName(m));
   const ok = (arr) => arr.filter((m) => !deadState(apiKey).ret[m] || deadState(apiKey).ret[m] <= Date.now());
   /* the model YOU configured is always tried first (unless Google says it is retired / unavailable for this key) */
   const pro = [MODEL_PRO, ...extra.filter((m) => /pro/.test(m)), ...lists.pro];
@@ -288,7 +291,8 @@ export async function refreshModels(apiKey, { force = false } = {}) {
   const all = (json.models || [])
     .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent") && /^models\/gemini-/.test(m.name)
       && !/image|tts|audio|live|embed|robotics|computer|learnlm|gemma|aqa|vision|deep-research|customtools|transcri|speech/i.test(m.name))
-    .map((m) => m.name.replace("models/", ""));
+    .map((m) => m.name.replace("models/", ""))
+    .filter(allowedName);                                  // v3.84: only the fixed official names (never a -latest alias, never a retired / redirected model)
   /* ListModels still lists gemini-2.5-* although new keys get 404 on them → keep the 3.x generation (and the -latest aliases)
      whenever it exists; the old generation is used only if nothing newer is listed at all */
   const modern = all.filter((n) => genOf(n) >= 3);
@@ -418,9 +422,9 @@ const is2x = (model) => /gemini-2\./.test(model);
 
 function ladderFor(model, spec) {
   // Gemini 2.5 Pro cannot switch thinking off (minimum 128): asking for 0 would waste a 400 round trip
-  const bud = { thinkingBudget: is2x(model) && /pro/.test(model) ? Math.max(128, spec.budget) : spec.budget };
-  if (is2x(model)) return [bud, null];
-  return [...spec.levels.map((l) => ({ thinkingLevel: l })), bud, null];
+  if (is2x(model)) return [{ thinkingBudget: /pro/.test(model) ? Math.max(128, spec.budget) : spec.budget }, null];
+  /* Gemini 3+: thinkingLevel ONLY (never a token budget); "minimal" is clamped for the models that do not accept it */
+  return [...new Set(spec.levels.map((l) => clampLevel(model, l)))].map((l) => ({ thinkingLevel: l })).concat([null]);
 }
 
 const memoKey = (model, task) => `clinix:tl:${model}|${task}`;
@@ -446,7 +450,8 @@ const lpMemo = (model) => { try { return window.localStorage.getItem(lpKey(model
 const lpSet = (model, v) => { try { window.localStorage.setItem(lpKey(model), v); } catch (e) { _lpMem.set(model, v); } };
 /* true when a solve request to this model should carry the logprobs fields: it is already known to support them, or it has never been probed and no probe is in flight.
    (apiKey is kept in the signature for the callers; the key size no longer matters, the probe adds no request.) */
-export const wantsLogprobs = (model, task, apiKey) => /^solve/.test(task) && /gemini/.test(model) && lpMemo(model) !== "0" && (lpMemo(model) === "1" || !_lpProbing.has(model)); // eslint-disable-line no-unused-vars
+export const wantsLogprobs = (model, task, apiKey) => !/gemini-(?:[3-9]|\d{2})/.test(model) && /^solve/.test(task) && /gemini/.test(model) && lpMemo(model) !== "0" && (lpMemo(model) === "1" || !_lpProbing.has(model)); // eslint-disable-line no-unused-vars
+/* v3.84: responseLogprobs is deprecated on Gemini 3.x (and refused with a 400 on the newest models): it is never sent to them. It is only still probed on a 2.x model. */
 export const __resetLogprobMemo = (model) => { _lpMem.delete(model); _lpProbing.delete(model); try { window.localStorage.removeItem(lpKey(model)); } catch (e) { /* ignore */ } };
 
 function genConfig(model, think, maxOut, task, logprobs) {
@@ -473,6 +478,7 @@ function readParts(json) {
 }
 
 async function fetchStream({ apiKey, model, body, signal, onText, onAlive, firstMs, idleMs = 45000, strictFirst = false }) {
+  assertModel(model);                                         // v3.84: never a "-latest" alias, never a retired / redirected model
   if (signal.aborted) throw abortError();
   const url = `${API_BASE}/${model}:streamGenerateContent?alt=sse`;
   const ctrl = new AbortController();
@@ -555,6 +561,7 @@ async function fetchStream({ apiKey, model, body, signal, onText, onAlive, first
 
 /* Native (non-streaming) fallback — used only if WebView fetch cannot reach Google. */
 async function nativeOnce({ apiKey, model, body, signal, onText, onAlive }) {
+  assertModel(model);
   const url = `${API_BASE}/${model}:generateContent`;
   let r;
   try {
@@ -671,8 +678,6 @@ async function attemptModelOnce({ apiKey, model, task, system, noSearchSystem, p
 
 /* ── retry engine: ONE request at a time, smart exponential backoff with jitter ── */
 
-export const BACKOFF = { retries: 3, baseMs: 2000, jitterMs: 1000, maxHintMs: 20000 };
-
 const sleep = (ms, signal) => new Promise((resolve, reject) => {
   if (signal && signal.aborted) return reject(abortError());
   const t = setTimeout(() => { signal && signal.removeEventListener("abort", onAbort); resolve(); }, ms);
@@ -694,24 +699,7 @@ export function busyError(last) {
 export const isTransient = (e) => !!e && !e.fatal && !e.dead && !e.blocked && !e.thinking &&
   (e.timeout || e.interrupted || e.netBeforeStart || e.emptyReply || [408, 429, 500, 502, 503, 504, 529].includes(e.status));
 
-/* withBackoff(fn): runs fn(); on a transient error waits 2 s → 4 s → 8 s (+ random jitter) and runs it again, at most 3 retries.
-   Then it throws busyError (never loops forever). onRetry({ attempt, max, waitMs, status }) lets the UI say "trying again". */
-export async function withBackoff(fn, { signal, onRetry, retries = BACKOFF.retries, baseMs = BACKOFF.baseMs, jitterMs = BACKOFF.jitterMs } = {}) {
-  for (let attempt = 0; ; attempt++) {
-    try { return await fn(attempt); }
-    catch (e) {
-      if (!e || e.name === "AbortError" || (signal && signal.aborted)) throw e;
-      if (!isTransient(e)) throw e;
-      /* a timeout means the model hung for minutes: one more try at most, not three */
-      if (attempt >= retries || (e.timeout && attempt >= 1)) throw busyError(e);
-      const hint = e.retryAfterMs || 0;
-      if (hint > BACKOFF.maxHintMs) throw busyError(e);              // Google itself says "come back in 30 s+": do not burn quota
-      const waitMs = Math.round(Math.max(baseMs * 2 ** attempt, hint) + Math.random() * jitterMs);   // 2 s, 4 s, 8 s + jitter
-      if (onRetry) onRetry({ attempt: attempt + 1, max: retries, waitMs, status: e.status || null });
-      await sleep(waitMs, signal);
-    }
-  }
-}
+/* v3.84: withBackoff / BACKOFF (wait 2 s → 4 s → 8 s and retry) were removed: a failed request hands over to the next lane at once, it is never slept on. */
 
 /* When every model failed, show the error that tells the student what to DO */
 function bestError(errs, tried) {
@@ -1030,7 +1018,7 @@ async function runTaskOnce({ apiKey, moreKeys, models, task, system, noSearchSys
 
     const armHedge = (rec) => {
       clearTimeout(hedgeTimer);
-      if (noHedge) return;                                                         // v3.41: a recording is paid for in tokens per SECOND: a racing second lane would pay for the same audio twice (a real failure still fails over)
+      if (!HEDGING || noHedge) return;                                                         // v3.41: a recording is paid for in tokens per SECOND: a racing second lane would pay for the same audio twice (a real failure still fails over)
       if (winner || settled || running().length >= 2) return;                    // never more than two lanes at once
       const nxt = nextLane(hedgePool.filter((l) => ready.includes(l)));
       if (!nxt || starts >= MAX_STARTS) return;
@@ -1201,3 +1189,6 @@ export async function generateImage({ apiKey, prompt, parts = [], signal }) {
   }
   throw Object.assign(last || new Error("مفيش موديل رسم صور متاح مع المفتاح ده."), { billing: true });
 }
+
+/* v3.84 · the transport pieces the one-request engine (one-call.js) shares with this file */
+export { hdrs, apiError, abortError, timeoutError };

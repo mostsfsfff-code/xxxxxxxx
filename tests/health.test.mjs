@@ -41,7 +41,7 @@ test("health: it is forgotten after twelve hours and remembered across a restart
 
 test("engine: a flaky model is no longer asked first (an equivalent one goes first)", async () => {
   fresh();
-  const A = "gemini-3.5-flash-lite", B = "gemini-flash-lite-latest";
+  const A = "gemini-3.5-flash-lite", B = "gemini-3.5-flash-lite";
   for (let i = 0; i < 6; i++) noteHealth(KEY, A, true);
   script(G(A), { ok: "from A" });
   script(G(B), { ok: "from B" });

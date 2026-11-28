@@ -16,7 +16,7 @@
    Policies enforced here (section 2 + 3 of the approved plan):
      · no -latest · only the fixed model names · no temperature/topP/topK · no thinkingBudget · no responseLogprobs
      · no prefilled model turn · minimal is never sent to gemini-3.8-flash (clamped to low) · includeThoughts stays off
-     · first-byte timeout depends on the thinking level (5 s minimal/low · 12 s medium · 20 s high) → fail over at once to the fallback model
+     · first-byte timeout depends on the thinking level (9 s minimal/low · 16 s medium · 25 s high, × --fb-scale) → fail over at once to the fallback model
      · 429 / 5xx / network failure → immediate fallback, NO sleep (the bench's own pacing wait is logged separately as pacer_wait_ms) */
 
 import fs from "node:fs";
@@ -28,7 +28,7 @@ import { pathToFileURL } from "node:url";
 export const MODELS = { primary: "gemini-3.5-flash-lite", fallback: "gemini-3.1-flash-lite", escalation: ["gemini-3.6-flash", "gemini-3.8-flash"] };
 export const ALLOWED_MODELS = [MODELS.primary, MODELS.fallback, ...MODELS.escalation];
 export const LEVELS = ["minimal", "low", "medium", "high"];
-export const FIRST_BYTE_MS = { minimal: 5000, low: 5000, medium: 12000, high: 20000 };
+export const FIRST_BYTE_MS = { minimal: 9000, low: 9000, medium: 16000, high: 25000 };
 const IDLE_MS = 30000, TOTAL_MS = 150000;
 export const ANSWER_FIELD = "answer_letter";
 const BANNED_KEYS = new Set(["temperature", "topP", "topK", "top_p", "top_k", "thinkingBudget", "thinking_budget", "responseLogprobs", "response_logprobs", "logprobs"]);
@@ -329,7 +329,7 @@ function buildPlan(o, ctx) {
   if (o.arm === "A") for (const q of items) for (const level of levels) plan.push({ q, cfg: { arm: "A", level, dictOn: o.dict === "on", variant: "af" } });
   else if (o.arm === "B") {
     if (!o.level) throw new Error("arm B needs --level");
-    for (const q of items) if (matchDict(ctx.dict, q.stem + " " + Object.values(q.options).join(" ")).length) for (const dictOn of [false, true]) plan.push({ q, cfg: { arm: "B", level: o.level, dictOn, variant: "af" } });
+    for (const q of items) if (matchDict(ctx.dict, q.stem + " " + Object.values(q.options).join(" ")).length) plan.push({ q, cfg: { arm: "B", level: o.level, dictOn: false, variant: "af" } });   /* glossary-ON side is reused from arm A (same level) */
   } else if (o.arm === "C") {
     if (!o.level) throw new Error("arm C needs --level");
     const hard = items.filter((q) => q.tags.includes("hard")), pool = hard.length ? hard : items;
@@ -384,12 +384,13 @@ export function buildReport(recs, { chosen = null, dictHasBad = false } = {}) {
     }
   }
   if (pairs.length) L.push(``, `## Paired comparison between levels (exact McNemar)`, ``, `With ~100 questions only large differences are detectable (95% CI is about ±9 points): p > 0.05 means "not distinguishable", not "equal".`, ``, `| pair | paired q | only first right | only second right | p |`, `|---|---|---|---|---|`, ...pairs);
-  /* arm B */
+  /* arm B: glossary OFF (arm B trials) vs glossary ON (arm A trials at the same level, same questions) */
   const B = main.filter((r) => r.arm === "B");
   if (B.length) {
-    const on = new Map(B.filter((r) => r.dict).map((r) => [r.qid, r])), off = new Map(B.filter((r) => !r.dict).map((r) => [r.qid, r]));
-    let b = 0, c = 0, both = 0, tOn = 0, tOff = 0; for (const [id, r1] of on) { const r0 = off.get(id); if (!r0) continue; if (r1.correct && !r0.correct) b++; else if (!r1.correct && r0.correct) c++; else both++; if (r1.trans_err?.length) tOn++; if (r0.trans_err?.length) tOff++; }
-    L.push(``, `## Glossary effect (arm B, matched questions only)`, ``, `paired q: ${b + c + both} · only-with-glossary right: ${b} · only-without right: ${c} · McNemar p = ${mcnemarExact(b, c).toFixed(3)} · translation errors with/without: ${tOn}/${tOff}`);
+    const lvl = B[0].level, on = new Map(A.filter((r) => r.level === lvl && r.dict).map((r) => [r.qid, r]));
+    let b = 0, c = 0, both = 0, tOn = 0, tOff = 0;
+    for (const r0 of B) { const r1 = on.get(r0.qid); if (!r1) continue; if (r1.correct && !r0.correct) b++; else if (!r1.correct && r0.correct) c++; else both++; if (r1.trans_err?.length) tOn++; if (r0.trans_err?.length) tOff++; }
+    L.push(``, `## Glossary effect (arm B vs arm A at ${lvl}, matched questions only)`, ``, b + c + both ? `paired q: ${b + c + both} · only-with-glossary right: ${b} · only-without right: ${c} · McNemar p = ${mcnemarExact(b, c).toFixed(3)} · translation errors with/without: ${tOn}/${tOff}` : `no arm-A trials with the glossary ON at ${lvl} for these questions: run arm A at ${lvl} first.`);
   }
   /* arm C */
   const C = main.filter((r) => r.arm === "C");
@@ -428,7 +429,7 @@ export function buildReport(recs, { chosen = null, dictHasBad = false } = {}) {
   return L.join("\n") + "\n";
 }
 
-export function smokeChecklist(recs) {
+export function smokeChecklist(recs, fbScale = 1) {
   const ok = recs.filter((r) => r.status === "ok"), atts = recs.flatMap((r) => r.attempts);
   const rows = [];
   const add = (pass, t) => rows.push(`${pass ? "PASS" : "FAIL"}  ${t}`);
@@ -441,7 +442,7 @@ export function smokeChecklist(recs) {
   const tk = (k) => atts.filter((a) => a.cat === "timeout" && a.kind === k).length;
   add(tk("fb") === 0, `no first-byte timeouts (${tk("fb")}) — if > 0 raise --fb-scale or the level limit, then rerun the smoke test`);
   add(tk("idle") + tk("total") === 0, `no idle/total timeouts (idle ${tk("idle")}, total ${tk("total")})`);
-  for (const l of LEVELS) { const t = recs.filter((r) => r.level === l && r.status === "ok").map((r) => r.attempts.at(-1).ttfb_ms).filter(Number.isFinite); if (t.length) { const lim = FIRST_BYTE_MS[l]; const p = Math.max(...t); add(p <= 0.7 * lim, `${l}: slowest first byte ${p} ms vs limit ${lim} ms (needs ≤ 70% headroom)`); } }
+  for (const l of LEVELS) { const t = recs.filter((r) => r.level === l && r.status === "ok").map((r) => r.attempts.at(-1).ttfb_ms).filter(Number.isFinite); if (t.length) { const lim = Math.round(FIRST_BYTE_MS[l] * fbScale), p = Math.max(...t), med = percentile(t, 0.5); add(p <= 0.7 * lim, `${l}: first byte median ${fmt(med)} ms · slowest ${p} ms vs limit ${lim} ms (needs slowest ≤ 70% = ${Math.round(0.7 * lim)} ms)`); } }
   add(ok.every((r) => !r.fallback), `no trial needed the fallback model (${ok.filter((r) => r.fallback).length} did)`);
   return rows;
 }
@@ -522,7 +523,7 @@ export async function main(argv, env = process.env) {
   }
   if (o.smoke) {
     const recs = dedupeByKey(readJsonl(file));
-    const rows = smokeChecklist(recs); console.log("\nSMOKE CHECKLIST\n" + rows.join("\n"));
+    const rows = smokeChecklist(recs, ctx.fbScale); console.log("\nSMOKE CHECKLIST\n" + rows.join("\n"));
     return rows.some((r) => r.startsWith("FAIL")) ? 3 : 0;
   }
   fs.writeFileSync(path.join(outDir, "report.md"), buildReport(readAll(), { chosen: o.chosen, dictHasBad }));

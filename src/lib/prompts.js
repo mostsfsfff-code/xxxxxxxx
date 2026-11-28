@@ -757,3 +757,90 @@ export function buildContractRepairPrompt({ contract, repairs = [], context = []
 }
 
 export { wordsFor as _wordsFor };
+
+/* ───────────── v3.84 · ONE REQUEST per question (lib/one-call.js) ─────────────
+   The structure of the reply lives in `responseSchema` (one-call.js): nothing below describes it. These are the CONTENT and LENGTH rules of each part, written in
+   plain words; the app adds the headings itself, so no part starts with a "## " line. The static head comes first (implicit-cache friendly), the glossary
+   and the student's style rules come last. */
+export const headingsFor = (chipIds) => headings(chipIds || []);
+
+/* the depth of each part by tier: an easy item gets a short lesson, a hard one the full lesson. The mode's own cap stays the ceiling (analysis.js). */
+const ONE_CALL_DEPTH = {
+  easy: {
+    label: "EASY (one fact or one rule)",
+    ask: "one bullet: the question type in English and the exam topic.",
+    decode: "only the sentences that matter (at most 3 bullets) and one bullet for the decisive keyword.",
+    basics: "ONE concept only: **Term** — a simple English definition, then ONE cause → effect line. No analogy unless the idea cannot be understood without one.",
+    steps: "at most 2 numbered steps.",
+    options: "one bullet per option, ONE short line each.",
+    vary: "leave it empty.",
+    tricks: "1 or 2 bullets; no memory-tip line.",
+  },
+  medium: {
+    label: "MEDIUM (apply a concept or a priority)",
+    ask: "two bullets: the question type with what the examiner wants, and the exam topic.",
+    decode: "the sentences that hold a number, a rule, a negation or the question itself (at most 6 bullets) and the decisive keyword.",
+    basics: "1 or 2 concepts: **Term** — a simple English definition, 2 cause → effect lines, and an everyday analogy only when it helps.",
+    steps: "3 or 4 numbered steps.",
+    options: "one bullet per option, one or two lines each.",
+    vary: "1 or 2 bullets, only when the item has real options; otherwise empty.",
+    tricks: "2 or 3 bullets.",
+  },
+  hard: {
+    label: "HARD (calculation, select-all, lab interpretation or several traps)",
+    ask: "two bullets: the question type in English with what the examiner wants, and the exam topic category (English with a short Arabic gloss).",
+    decode: "one bullet per stem sentence that holds a number, rule, negation or the question itself, then one bullet for the decisive keyword and what it changes.",
+    basics: "for each concept the question needs (1 to 4): **Term** — a simple English definition, 1 to 3 lines that explain it from zero with an everyday analogy, and 2 to 3 cause → effect lines.",
+    steps: "2 to 5 numbered steps that show HOW to think for this item type (for a calculation: every step with its numbers).",
+    options: "one bullet per option, up to three lines each: what it means, why it is right or wrong, and for a wrong one when it would be right.",
+    vary: "2 or 3 bullets, only when the item has real options; otherwise empty.",
+    tricks: "2 to 4 bullets.",
+  },
+};
+
+export function buildOneCallPrompt({ profile, history, extra, chips = [], words = 900, calculationHandoff = "", glossary = "", tier = "medium" }) {
+  const calc = calculationHandoff ? CALCULATION_AUTHORITY_RULE : "";
+  const D = ONE_CALL_DEPTH[tier] || ONE_CALL_DEPTH.medium;
+  return {
+    system: `${CORE(true)}
+
+YOU WRITE THE WHOLE ANALYSIS IN ONE REPLY. Inspect the supplied source carefully (an exam question, an open clinical request, a calculation or a source-only task). Read every supplied fact, unit, exhibit and lab. Treat answer options as present only if they are really visible; never invent options, letters or findings.
+Reason silently first and commit to the answer only when you are sure; the first parts of the reply are the answer and its one-line reason.
+
+${TEACH}
+${QUALITY}
+${calc}
+
+${LAYOUT.replace(/- Heading: a line that starts with "## "\.\n/, "- Never write a heading: the app adds the headings.\n")}
+
+DEPTH FOR THIS ITEM: ${D.label}. About ${words} words in total over the teaching parts, never more, never padded. It is a lesson in short bullets, NOT an essay: no introduction, no conclusion, no paragraph longer than two lines, one idea per bullet, never repeat the answer in several parts.
+
+ENGLISH AND ARABIC (strict, the student reads both on one screen):
+- English parts: the question's own words, option texts, medical terms, drug names, abbreviations, units, numbers (always Latin digits, original units). Arabic parts: the meaning, the reasoning, the explanation.
+- One language per clause. An Arabic sentence may contain single English terms (a drug, a test, an abbreviation, a unit) but never an English clause. Never switch language more than once in a line: write "English clause — Arabic meaning" and stop.
+- Translate the MEANING in short natural Arabic, never word by word. Translate a term once, where it first appears. Use the glossary renderings exactly when a glossary is given. For a term with no well-known Arabic name, or when you are not sure of the standard Arabic term, keep the English term and explain it in one simple Arabic sentence. Never invent an Arabic term and never write English words in Arabic letters.
+- Do not translate drug names, lab abbreviations or units.
+
+CONTENT AND LENGTH RULES, part by part:
+- answer_letter: the letter of the correct option; for select-all give every correct letter separated by commas; when the item has no lettered options write a short direct answer (at most 12 words). Letters only, no words around them.
+- short_rationale: at most two sentences (about 40 words), in English: the decisive reason the answer wins.
+- ask: ${D.ask}
+- decode: ${D.decode} Format: **English chunk** — meaning.
+- basics: ${D.basics}
+- steps: ${D.steps}
+- options: ${D.options} Format: **A) option text in English** ✅ or ❌ — the reason in Arabic. EVERY option; judge each option of a select-all separately. Omit when the item has no options.
+- vary: ${D.vary}
+- memo: ONLY when the item rests on a list, a sequence, a set of criteria or a rule that is hard to remember: ONE short mnemonic or acronym in English (each letter = one item) with a one-line Arabic meaning. When nothing needs memorizing leave memo EMPTY. Never restate the answer here, and never write a mnemonic just to fill the part.
+- tricks: ${D.tricks} Each bullet "**Trap name:** short explanation" (trap names in English). Add a final "💡" memory tip only when the memo part is empty AND the tip is genuinely useful.
+- type: one of MCQ, SATA, open case, safety, pharmacology, calculation, source-only.
+- keyword: the decisive directive (max 10 words) or NOT APPLICABLE.
+- concepts: 2 to 4 core concepts separated by ";".
+- data: every decisive numeric input of the stem as key=value pairs with units, exactly as written in the source, separated by ";" (max 80 words); empty when there are none. Never an input the source does not state.
+- calc: only for a calculation: the formula, the substitution and the result with its unit (max 60 words); otherwise empty.
+- conf: high, medium or low, and one short reason when it is not high.
+
+CONSISTENCY: the chosen letter, every number, every dose and every drug name must be identical in every part. Copy a number from the source exactly; never round it differently. Do not state an option is correct in one part and wrong in another.
+${styleTail(chips, extra, profile)}${linkBlock(history, "question", extra)}${glossary ? `\n${glossary}\n` : ""}`,
+    user: `Analyse the question in the source and answer.${calculationAuthorityBlock(calculationHandoff)}`,
+  };
+}

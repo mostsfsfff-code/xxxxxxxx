@@ -36,7 +36,7 @@ test("an exam item: no search, the short rules instead of the universal protocol
   const key = "AIzaEXAMLEAN00000001";
   reset(); Router.__resetRouter(); window.localStorage.clear();
   setExtKeys({}); setEnginePrefs({ mode: "auto" });
-  script(G("gemini-flash-latest"), { ok: "## ✅ Answer\nB) Stop the heparin infusion. Never restart heparin when HIT is suspected. The client weighing 80 kg got 14.4 mL/hr in option A." });
+  script(G("gemini-3.6-flash"), { ok: "## ✅ Answer\nB) Stop the heparin infusion. Never restart heparin when HIT is suspected. The client weighing 80 kg got 14.4 mL/hr in option A." });
   let text = "";
   const trust = [];
   await new Promise((resolve, reject) => {

@@ -114,15 +114,18 @@ test("a DAILY quota 429 makes the lane dead and the next lane answers", async ()
   assert.ok(R.isDead(G("gemini-3.8-flash")));
 });
 
-test("HEDGING: a silent first lane is raced by the second; the first sign of life wins and the loser is cancelled", async () => {
+test("NO HEDGING (v3.84): a silent first lane is NOT raced; it is given up at its silence limit and the second lane answers at once", async () => {
   fresh();
   script(G("gemini-3.8-flash"), { wait: 5000, ok: "slow" });
   script(G("gemini-3.6-flash"), { ok: "fast answer" });
   const t0 = Date.now();
-  const r = await runTask(base({ task: "lessonA:balanced", models: ["gemini-3.8-flash", "gemini-3.6-flash"] }));
+  let seen = null;
+  const r = await runTask(base({ task: "lessonA:balanced", models: ["gemini-3.8-flash", "gemini-3.6-flash"], firstMs: 700, onReport: (t) => { seen = t; } }));
   assert.equal(r.text, "fast answer");
-  assert.ok(Date.now() - t0 < 1500, "did not wait for the silent lane");
-  assert.equal(lanesUsed().length, 2);
+  const ms = Date.now() - t0;
+  assert.ok(ms >= 600 && ms < 2500, `the second request waited for the first lane's silence limit (${ms} ms), it was not raced against it`);
+  assert.equal(lanesUsed().length, 2, "exactly one request per lane");
+  assert.ok(!seen || !seen.hedges, "no hedge was ever counted");
 });
 
 test("auto mode, chat: when Google is slow, the extra free engine (Groq) answers", async () => {
@@ -266,17 +269,17 @@ test("LATENCY TRACE: a call that fails completely still reports, and never throw
   assert.ok(r.text);
 });
 
-test("LATENCY TRACE: a lane that lost a hedge race is recorded as 'lost' (not as a failure) and the hedge is counted", async () => {
+test("LATENCY TRACE (v3.84): no hedge is ever started; the lane that stayed silent is a recorded failure and the next lane answers", async () => {
   fresh();
   script(G("gemini-3.8-flash"), { wait: 5000, ok: "slow" });
   script(G("gemini-3.6-flash"), { ok: "fast answer" });
   let trace = null;
-  const r = await runTask(base({ task: "lessonA:balanced", models: ["gemini-3.8-flash", "gemini-3.6-flash"], onReport: (t) => { trace = t; } }));
+  const r = await runTask(base({ task: "lessonA:balanced", models: ["gemini-3.8-flash", "gemini-3.6-flash"], firstMs: 700, onReport: (t) => { trace = t; } }));
   assert.equal(r.text, "fast answer");
   const b = lat(trace);
-  assert.equal(b.hedges, 1);
-  assert.deepEqual(b.failed, [], "the cancelled slow lane is not a failure");
-  assert.ok(trace.attempts.some((a) => a.outcome === "lost"));
+  assert.equal(b.hedges, 0, "hedging is switched off");
+  assert.equal(b.failed.length, 1, "the silent lane is a failure, not a lost race");
+  assert.ok(!trace.attempts.some((a) => a.outcome === "lost"));
 });
 
 import { createAnalysis } from "../src/lib/analysis.js";

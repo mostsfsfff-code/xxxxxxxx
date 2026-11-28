@@ -13,7 +13,7 @@ test("health answers receive one grounded search request and expose returned sou
   const key = `AIzaHEALTH${String(++seq).padStart(8, "0")}`;
   reset(); Router.__resetRouter(); window.localStorage.clear();
   setExtKeys({}); setEnginePrefs({ mode: "auto" });
-  script(G("gemini-flash-latest"), {
+  script(G("gemini-3.5-flash-lite"), {
     ok: "## 🎯 What is being asked?\n## 🧠 Reasoning\n## ✅ Answer\nGeneral educational answer.",
     grounding: {
       webSearchQueries: ["current evidence for adult hypertension management"],

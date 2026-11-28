@@ -6,7 +6,10 @@ import { norm } from "../accuracy.js";
 import { normTerm } from "./rules.js";
 
 const UNITS = "mmol\\/L|mEq\\/L|g\\/dL|g\\/L|mg\\/dL|µmol\\/L|umol\\/L|μmol\\/L|mg\\/L|ng\\/mL|ng\\/dL|pg\\/mL|mcg\\/mL|µg\\/mL|mcg\\/dL|µg\\/dL|mIU\\/L|IU\\/L|U\\/L|mmHg|kPa|%|bpm|beats\\/min|beats per minute|breaths\\/min|breaths per minute|\\/min|seconds|sec|fL|mL\\/min|x10\\^?9\\/L|×10\\^?9\\/L|\\/mm3|\\/mm³|\\/µL|cells\\/mm3";
-const VAL = new RegExp(`(\\d+(?:[.,]\\d+)?)\\s*(${UNITS})`, "i");
+/* v3.83 · a thousands separator is not a decimal comma: "400,000/mm³" is 400000, not 400.000 (it used to turn a TRUE "platelets 150,000–400,000 are normal" into the false
+   "Platelets 400 /mm3 is below the reference range"). A comma followed by exactly three digits is a thousands separator; "1,5" stays a decimal. */
+const VAL = new RegExp(`(\\d{1,3}(?:,\\d{3})+(?:\\.\\d+)?|\\d+(?:[.,]\\d+)?)\\s*(${UNITS})`, "i");
+const numOf = (s) => (/^\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(s) ? parseFloat(s.replace(/,/g, "")) : parseFloat(s.replace(",", ".")));
 const BARE = /\b(?:ph|inr|potassium|sodium|k\+|na\+)\s*(?:is|was|of|=|:|level of|level is|at|came back at)?\s*(\d+(?:\.\d+)?)(?![\d.]*\s*(?:meq|mmol|mg|%|mcg|g\/|units|ml|l\b))/i;
 const SEX_M = /\b(?:man|men|male|boy|gentleman)\b|رجل|ذكر|راجل|ولد/i;
 const SEX_F = /\b(?:woman|women|female|girl|lady|pregnant)\b|امرأة|امراة|سيدة|أنثى|انثى|ست\b|بنت|حامل/i;
@@ -48,7 +51,7 @@ export function rangeInfo(sentence, patient, profile) {
   for (const f of loadedFacts()) {
     if (f.kind !== "range" || !inScope(f, profile) || !hasAlias(f, sentence)) continue;
     if (bare && !f.data.bareOk) continue;                        // only the few analytes that are written without a unit (pH, INR, K, Na)
-    const value = parseFloat(m[1].replace(",", "."));
+    const value = numOf(m[1]);
     const si = bare ? value : toSi(value, m[2], f);
     if (si == null) continue;
     if (bare && (si < f.data.strata[0].low * 0.2 || si > f.data.strata[0].high * 5)) continue;     // not a plausible value of this analyte: ignore

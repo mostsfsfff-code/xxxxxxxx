@@ -1482,6 +1482,8 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--teal-2) 
 .trust{display:flex;flex-direction:column;gap:10px;margin:10px 0;font-size:.92rem}
 .trust-banner{border:1px solid #d97706;background:rgba(217,119,6,.1);border-radius:12px;padding:10px 12px}
 .trust-banner.t-low{border-color:#dc2626;background:rgba(220,38,38,.1)}
+.trust-draft{border:1px dashed #0d9488;background:rgba(13,148,136,.08);border-radius:12px;padding:10px 12px;display:grid;gap:4px}
+.trust-draft small{opacity:.75}
 .trust-banner ul{margin:6px 0;padding-inline-start:18px}
 .trust-per span{display:inline-block;margin-inline-end:8px;padding:1px 6px;border-radius:8px;background:rgba(127,127,127,.15)}
 .trust-per .hi{background:rgba(22,163,74,.2)}

@@ -107,8 +107,9 @@ test("FREE profile (the default build) keeps its patient timings and talks to Go
   assert.equal(C.cap(240000, "first"), 240000);                       // a 4-minute first-byte allowance for a deep Pro lesson is untouched
   assert.equal(C.cap(150000, "idle"), 150000);
   assert.equal(C.NET.hedge, 1);
-  assert.equal(C.NET.maxWait, 40000);
-  assert.equal(C.NET.maxHint, 25000);
+  assert.equal(C.NET.maxWait, 4000, "v3.84 Zero-Sleep: at most 4 s of waiting when every lane is asleep (it used to be 40 s)");
+  assert.equal(C.NET.maxHint, 4000);
+  assert.equal(C.HEDGING, false, "no parallel hedging");
   assert.equal(C.NET.imageMs, 170000);
   assert.equal(C.NET.imageTimeouts, 3);
 });

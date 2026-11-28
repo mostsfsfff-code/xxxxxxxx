@@ -125,7 +125,7 @@ export function locate(model, sentence) {
      acronyms    every ALL-CAPS token of the claim is in the source sentence    (else: not grounded: the acronym is the invention)
    Model-written extraction text (partial segments) is never searched. Built once per model (inverted index word → sentence ids). */
 const NEGW = new Set(["not", "no", "never", "cannot", "without", "none", "neither", "nor", "isnt", "arent", "dont", "doesnt", "wont", "cant", "shouldnt", "wasnt", "werent", "hasnt", "havent", "didnt", "لا", "مش", "ليس", "غير", "مفيش", "بدون"]);
-const numsOf = (s) => new Set((String(s).match(/\d+(?:[.,]\d+)?/g) || []).map((x) => parseFloat(x.replace(",", "."))));
+const numsOf = (s) => new Set((String(s).match(/\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:[.,]\d+)?/g) || []).map((x) => (/^\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(x) ? parseFloat(x.replace(/,/g, "")) : parseFloat(x.replace(",", ".")))));   // v3.83: 98,000 = 98000
 const capsOf = (s) => (String(s).match(/\b[A-Z]{2,}\b/g) || []).map((x) => x.toLowerCase());
 const hasNeg = (toks) => toks.some((w) => NEGW.has(w));          // an explicit list: «nutrient», «patient», «present» end in -nt and are not negations
 

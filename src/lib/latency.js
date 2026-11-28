@@ -98,7 +98,7 @@ export function describe(sum) {
   const parts = [];
   if (sum.lostMs >= 1500) {
     const why = tally(sum.failed);
-    parts.push(`ضاع ${s1(sum.lostMs)} في محاولات فاشلة وانتظار${why ? ` (${why})` : ""}${(sum.failedDetailAll || []).length ? ` [${sum.failedDetailAll.slice(0, 4).join(" · ")}]` : ""}`);
+    parts.push(`ضاع ${s1(sum.lostMs)} في محاولات فاشلة وانتظار${why ? ` (${why})` : ""}${(sum.failedDetailAll || []).length ? ` [${sum.failedDetailAll.slice(0, 4).join(" · ")}]` : ""}${sum.sleptMs >= 1500 ? ` · منها ${s1(sum.sleptMs)} انتظار صحيان الموديلات` : ""}`);
   }
   if (sum.waitMs >= 800) parts.push(`انتظار أول رد ${s1(sum.waitMs)}`);
   if (sum.thinkMs >= 800) parts.push(`تفكير ${sum.thinkEst ? "≈" : ""}${s1(sum.thinkMs)}`);

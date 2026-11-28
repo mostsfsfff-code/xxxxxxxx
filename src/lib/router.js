@@ -20,7 +20,7 @@ export const __setClock = (fn) => { _now = typeof fn === "function" ? fn : () =>
 
 /* ── lane objects ── */
 
-/* generation number of a Gemini model id: gemini-3.8-flash → 3.8 ; "-latest" aliases have none → treated as newest */
+/* generation number of a Gemini model id: gemini-3.8-flash → 3.8 ; a name without a generation number → treated as newest */
 export const genOf = (n) => { const v = (String(n).match(/gemini-(\d+(?:\.\d+)?)/) || [])[1]; return v ? parseFloat(v) : 99; };
 
 /* v3.35 · the three sizes of Gemini model. Their daily quotas are separate, which is what the key ring relies on (keyring.js).

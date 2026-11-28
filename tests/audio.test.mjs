@@ -38,13 +38,13 @@ const b64Mark = (file) => Buffer.from(bytes(file.size, file.__seed || 7)).toStri
 
 /* an in-memory cache + a fake network for the unit tests */
 const memCache = () => { const m = new Map(); return { m, get: async (k) => m.get(k) || null, set: async (k, v) => { m.set(k, v); } }; };
-const LISTS = () => ({ fast: ["gemini-flash-latest", "gemini-flash-lite-latest"], pro: ["gemini-pro-latest"] });
+const LISTS = () => ({ fast: ["gemini-3.6-flash", "gemini-3.5-flash-lite"], pro: ["gemini-3.8-flash"] });
 const mk = (over = {}) => {
   const calls = { run: [], upload: [], wav: 0 };
   const cache = memCache();
   const deps = {
     cache, lists: LISTS, uploads: true,
-    run: async (args) => { calls.run.push(args); return { text: TRANSCRIPT, model: "gemini-flash-latest" }; },
+    run: async (args) => { calls.run.push(args); return { text: TRANSCRIPT, model: "gemini-3.6-flash" }; },
     upload: async (a) => { calls.upload.push(a); return { fileUri: "https://g/files/abc", mimeType: a.mimeType }; },
     toWav: async () => { calls.wav++; return new Blob([bytes(2048, 3)], { type: "audio/wav" }); },
     ...over,
@@ -75,8 +75,8 @@ test("ONE request: the recording untouched + a one-line instruction, no thinking
   assert.equal(a.task, "audio");
   assert.equal(a.noHedge, true, "a second model racing the first would pay for the same audio twice");
   assert.deepEqual(a.spec, { levels: ["minimal", "low"], budget: 0 }, "no thinking tokens");
-  assert.equal(a.models[0], "gemini-flash-latest", "the strong Flash model first (every later answer stands on this text)");
-  assert.ok(a.models.indexOf("gemini-flash-lite-latest") > 0, "Flash-Lite only as a fallback");
+  assert.equal(a.models[0], "gemini-3.6-flash", "the strong Flash model first (every later answer stands on this text)");
+  assert.ok(a.models.indexOf("gemini-3.5-flash-lite") > 0, "Flash-Lite only as a fallback");
   assert.equal(a.parts.length, 2);
   assert.equal(a.parts[0].inlineData.mimeType, "audio/mp3");
   assert.equal(Buffer.from(a.parts[0].inlineData.data, "base64").length, 5000, "the file is sent as it is (no re-encoding, no cutting, no speed-up)");
@@ -233,7 +233,7 @@ test("browser conversion helpers: a valid 16 kHz mono 16-bit WAV, resampling kee
 });
 
 /* ── 6 · the engine: a second model must not race the recording ── */
-test("through the real engine: a slow first word makes a normal request race a second model, an audio request does NOT (control experiment)", async () => {
+test("through the real engine: a slow first word never makes ANY request race a second model, and the audio is sent exactly once (v3.84: no hedging)", async () => {
   fresh();
   const was = { ...R.HEDGE_MS.audio }, floor = R.HEDGE_FLOOR_MS.v;
   R.HEDGE_MS.audio = { min: 60, max: 120 }; R.HEDGE_FLOOR_MS.v = 20;       // make the race start almost at once so the test is quick
@@ -247,7 +247,7 @@ test("through the real engine: a slow first word makes a normal request race a s
     };
     const raced = await count(false);
     const single = await count(true);
-    assert.ok(raced >= 2, `without noHedge the slow request is raced (${raced} requests)`);
+    assert.equal(raced, 1, `v3.84: hedging is off for every request, so even without noHedge a slow request is sent once (${raced} requests)`);
     assert.equal(single, 1, "with noHedge the audio is sent exactly once");
   } finally { R.HEDGE_MS.audio = was; R.HEDGE_FLOOR_MS.v = floor; }
 });

@@ -14,7 +14,7 @@
    What this file does (no prompt, no model and no answer is changed by it):
    1. parseQuota()   reads the structured error: which quota (day / minute / tokens / none), its real limit, the model it belongs to, Google's retry hint.
    2. a ledger, remembered per key across restarts (localStorage): requests sent today and in the last minute per model, learned limits, "finished until the
-      daily reset" (midnight Pacific time, 10:00 in Cairo) and which model names are really the same quota (gemini-flash-latest = gemini-3.8-flash).
+      daily reset" (midnight Pacific time, 10:00 in Cairo) and which model names are really the same quota (two names Google reports as ONE quota).
    3. paceMs()       a model that has just used its per-minute quota is not called again until a slot is free: a known 8 s wait instead of a 429 and a 15-60 s penalty.
    4. pressure() / isScarce()  evidence that this key is small → the analysis asks for fewer requests (analysis.js) and keeps the strong model for the lesson itself.
    5. quotaNote()    one honest sentence for the screen: which model finished its quota and when it comes back.
@@ -157,7 +157,7 @@ export function noteQuotaError(apiKey, model, q) {
   return out;
 }
 
-/* every name that is the same quota as `model` (gemini-flash-latest ↔ gemini-3.8-flash), the model itself included */
+/* every name that is the same quota as `model` (two names Google reports as ONE quota), the model itself included */
 export function sameAs(apiKey, model) {
   const st = state(apiKey), c = canon(st, model);
   const all = new Set([model, c]);
@@ -290,7 +290,7 @@ export function isScarce(apiKey, models) {
     const m = lane(st, n);
     if (m.dead > now) { known = true; continue; }
     if (m.rpd > 0) { known = true; sum += Math.max(0, m.rpd - m.used); }
-    else if (!/latest$/.test(n) && !st.same[n]) return false;                  // a Flash model whose quota is unknown: assume plenty
+    else if (!st.same[n]) return false;                  // a Flash model whose quota is unknown: assume plenty
   }
   return known && sum <= SCARCE_AT;
 }
@@ -306,7 +306,7 @@ export function orderForTask(apiKey, task, models) {
 /* one honest sentence about what finished today (nothing when everything is fine) */
 export function quotaNote(apiKey) {
   const st = state(apiKey), now = _now();
-  const dead = Object.keys(st.lanes).filter((n) => { const m = lane(st, n); return m.dead > now && !m.none && !/latest$/.test(n); });
+  const dead = Object.keys(st.lanes).filter((n) => { const m = lane(st, n); return m.dead > now && !m.none; });
   if (!dead.length) return "";
   const at = Math.max(...dead.map((n) => lane(st, n).dead));
   let when = "";

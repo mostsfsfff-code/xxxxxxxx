@@ -106,7 +106,7 @@ test("packAudio: the student's cancel is the only thing that throws", async () =
 });
 
 /* the transcription */
-const LISTS = () => ({ fast: ["gemini-flash-latest"], pro: [] });
+const LISTS = () => ({ fast: ["gemini-3.6-flash"], pro: [] });
 const mk = (packed, over = {}) => {
   const calls = { run: [], upload: [] }, cache = new Map();
   return { calls, deps: {

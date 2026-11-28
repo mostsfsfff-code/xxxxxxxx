@@ -27,7 +27,7 @@ mock.timers.enable({ apis: ["setTimeout", "setInterval", "Date"], now: T0 });
 
 const enc = new TextEncoder();
 const LIM = { "gemini-3.8-flash": [5, 20, 3000], "gemini-3.6-flash": [5, 20, 3000], "gemini-3.5-flash-lite": [10, 500, 1500], "gemini-3.1-flash-lite": [10, 500, 1500] };
-const ALIAS = { "gemini-flash-latest": "gemini-3.8-flash", "gemini-flash-lite-latest": "gemini-3.5-flash-lite" };
+const ALIAS = { "gemini-3.6-flash": "gemini-3.8-flash", "gemini-3.5-flash-lite": "gemini-3.5-flash-lite" };
 const accepted = {}, stats = { fail429: 0, fail503: 0, ok: 0, lite: 0, strong: 0 };
 let shedN = 0;
 const MSG = (limit, model, retry) => `You exceeded your current quota, please check your plan and billing details.\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: ${limit}, model: ${model}\nPlease retry in ${retry}s.`;

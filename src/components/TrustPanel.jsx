@@ -31,6 +31,15 @@ export default function TrustPanel({ trust, onSecondOpinion, second }) {
   const hasReview = v.fixes.length > 0 || v.warnings.length > 0 || v.notes.length > 0;
   return (
     <div className="trust" dir="rtl">
+      {trust.draft && trust.phase !== "final" && (
+        /* v3.84 · answer first: the letter and its one-line reason arrive seconds into the request; the checks are still running, so it is labelled preliminary.
+           The final trust payload replaces this object, so the card disappears by itself when the checks end. */
+        <div className="trust-draft" role="status">
+          <b>إجابة مبدئية: {trust.draft.letter}</b>
+          {trust.draft.rationale && <div dir="ltr">{trust.draft.rationale}</div>}
+          <small>لسه بتتراجع بالفحوصات التلقائية قبل ما تتعتمد</small>
+        </div>
+      )}
       {banner && (
         <div className={`trust-banner t-${banner.tier.toLowerCase()}`} role="status">
           <b>{banner.head}</b>

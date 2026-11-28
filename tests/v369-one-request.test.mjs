@@ -30,7 +30,7 @@ async function run({ respond, modeId = "balanced", key, doc = { kind: "text", na
   key = key || `AIzaV369${String(Math.floor(Math.random() * 1e9)).padStart(10, "0")}`;
   reset(); Router.__resetRouter(); if (!keepCache) window.localStorage.clear(); setExtKeys({}); setEnginePrefs({ mode: "auto" });
   const calls = [];
-  for (const m of ["gemini-flash-latest", "gemini-pro-latest", "gemini-flash-lite-latest", "gemini-3.1-pro-preview"]) script(`gemini:${m}`, { ok: (b) => { calls.push({ model: m, sys: sysOf(b) }); return respond(b, calls.length); } });
+  for (const m of ["gemini-3.6-flash", "gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3.1-pro-preview"]) script(`gemini:${m}`, { ok: (b) => { calls.push({ model: m, sys: sysOf(b) }); return respond(b, calls.length); } });
   const updates = [];
   const dones = [];
   await new Promise((resolve, reject) => {

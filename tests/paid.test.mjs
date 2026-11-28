@@ -43,8 +43,8 @@ test("PAID profile: silent requests are cut early, hedges start earlier, waits a
   assert.equal(C.cap(150000, "idle"), 60000);
   assert.equal(C.cap(30000, "first"), 30000);                       // a short timeout stays as it is
   assert.equal(C.NET.hedge, 0.5);
-  assert.equal(C.NET.maxWait, 15000);
-  assert.equal(C.NET.maxHint, 12000);
+  assert.equal(C.NET.maxWait, 4000);
+  assert.equal(C.NET.maxHint, 4000);
   assert.equal(C.NET.imageMs, 80000);
   assert.equal(C.NET.imageTimeouts, 2);
   R.__resetRouter();

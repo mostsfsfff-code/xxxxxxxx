@@ -50,11 +50,11 @@ test("the paired benchmark uses the same model settings, alternates order, and w
       text: async () => JSON.stringify({ candidates: [{ content: { parts: [{ text: answer }] } }] }),
     };
   };
-  const out = await runPilotBenchmark({ apiKey: "test-key", model: "gemini-flash-latest", fetchImpl: fakeFetch, now: "2026-11-20T00:00:00.000Z" });
+  const out = await runPilotBenchmark({ apiKey: "test-key", model: "gemini-3.6-flash", fetchImpl: fakeFetch, now: "2026-11-20T00:00:00.000Z" });
   assert.equal(calls.length, 14);
   assert.equal(out.blindResults.pairs.length, 7);
   assert.equal(out.blindKey.conditions.length, 7);
-  assert.ok(calls.every((c) => c.url.includes("/gemini-flash-latest:generateContent")));
+  assert.ok(calls.every((c) => c.url.includes("/gemini-3.6-flash:generateContent")));
   assert.ok(calls.every((c) => c.body.generationConfig.temperature === 0 && c.body.generationConfig.maxOutputTokens === 700));
   assert.deepEqual(out.blindKey.conditions[0], { caseId: "pgx-tier-semantics", A: "baseline", B: "specialized" });
   assert.deepEqual(out.blindKey.conditions[1], { caseId: "fda-table-testing-mandate", A: "specialized", B: "baseline" });

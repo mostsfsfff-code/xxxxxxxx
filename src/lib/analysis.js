@@ -7,8 +7,8 @@
    Text-first questions skip transcription. Lessons keep their separate source-reading
    / study-summary stage. See config.js for quota and request-count behaviour. */
 
-import { MODES, LESSON_MODE, LESSON_SLICES, SLICE_MIN_PAGES, CONTRACT, contractEnabled } from "./config.js";
-import { buildOcrPrompt, buildWordsPrompt, buildSolvePrompt, buildLessonPrompt, buildLessonAPrompt, buildLessonBPrompt, buildStudySummaryPrompt, buildStudyLessonPrompt, buildStudyAPrompt, buildStudyBPrompt, buildStudyHeadPrompt, buildStudySlicePrompt, buildStudyTailPrompt, studyHeadings, buildContractOncePrompt, buildContractRepairPrompt } from "./prompts.js";
+import { MODES, LESSON_MODE, LESSON_SLICES, SLICE_MIN_PAGES, CONTRACT, contractEnabled, FLAGS } from "./config.js";
+import { buildOcrPrompt, buildOneCallPrompt, headingsFor, buildWordsPrompt, buildSolvePrompt, buildLessonPrompt, buildLessonAPrompt, buildLessonBPrompt, buildStudySummaryPrompt, buildStudyLessonPrompt, buildStudyAPrompt, buildStudyBPrompt, buildStudyHeadPrompt, buildStudySlicePrompt, buildStudyTailPrompt, studyHeadings, buildContractOncePrompt, buildContractRepairPrompt } from "./prompts.js";
 import { createSlicedLesson, shouldSlice } from "./lessonflow.js";
 import { fixText, ARABIC_RULE } from "./text.js";
 import { cleanOcr, cleanWords, cleanBrief, splitReason } from "./parse.js";
@@ -29,6 +29,14 @@ import { readSources } from "./sources.js";
 import { selectClaims, applyCached, applyVerdicts } from "./claims.js";
 import { addGaps } from "./reports.js";
 import { getModelLists, runTask } from "./gemini.js";
+import { runOneCall, planFor } from "./one-call.js";
+import { levelFor } from "./think-router.js";
+import { matchTerms, glossaryBlock } from "./nursing-dict.js";
+import { composeLesson, makeBrief, postCheck, reviewConcern } from "./one-call-check.js";
+import { polishReply } from "./one-call-polish.js";
+import { rateQuestion, TIER_WORDS } from "./difficulty.js";
+import { REWRITE_AT, allowRetry } from "./guard.js";
+import { MODELS } from "./models.js";
 import { weakFirst, tierOf } from "./router.js";
 import { parseTaskContract, parseItemOutput, auditItems, defects, assembleAnswer, targetWords } from "./taskcontract.js";
 import { auditCitations, annotateCitations } from "./citation-audit.js";
@@ -901,9 +909,73 @@ export function createAnalysis({ kind = "question", history, dataUrl, doc, extra
       });
   }
 
+  /* ── v3.84 · reason, ONE REQUEST (default for questions) ──
+       one streaming request → answer letter + one-line reason first (shown as «preliminary» while the rest streams) → the lesson parts → the same trust pass as before.
+       Deterministic checks run in code; a contradiction costs at most ONE extra request (the stronger model), or shows the «راجع» badge when that is not possible. */
+  function runReasonOne() {
+    live.reason?.abort();
+    const ctrl = new AbortController();
+    live.reason = ctrl;
+    const sig = ctrl.signal;
+    const t0 = performance.now();
+    const since = () => performance.now() - t0;
+    const deepMode = mode.id === "deep";
+    const srcText = mergeOriginalSourceText(ocrText, sample());
+    let route = levelFor(`${srcText}\n${extra || ""}`, { deepMode });            // "low", or "high" for a calculation (deep mode: at least "medium")
+    /* an image whose text could not be read: the local detector has nothing to look at, so a calculation could slip through at "low": think as hard as needed instead */
+    if (questionNeedsTranscript && !srcText.trim()) route = { deep: true, level: "high", reasons: ["source text unavailable"] };
+    /* depth by difficulty: an easy item gets a short lesson, a hard one the full lesson; the mode's own cap stays the ceiling */
+    const rating = rateQuestion(`${srcText}\n${extra || ""}`, { deepMode });
+    const tier = questionNeedsTranscript && !srcText.trim() ? "hard" : rating.tier;
+    const words = Math.min(wordsCap.b, Math.round(TIER_WORDS[tier] * (deepMode ? 1.15 : 1)));
+    const prompt = buildOneCallPrompt({ profile: prof(), history, extra, chips, words, tier, calculationHandoff: sourceCalculationHandoff(), glossary: glossaryBlock(matchTerms(srcText)) });
+    const parts = [...src, { text: note + prompt.user }];
+    const system = prompt.system + ARABIC_RULE;
+    const draft = { letter: "", rationale: "" };
+    let over = false, chars = 0;
+    const fail = (err) => { if (over || sig.aborted) return; over = true; ctrl.abort(); if (draft.letter) emitTrust({ phase: "draft", draft: null }); onError("reason", err, null); };   // a failed analysis must not leave a «preliminary» card behind
+    const onField = (k, v) => {
+      if (over || sig.aborted || !FLAGS.answerFirst) return;
+      if (k === "answer_letter") draft.letter = String(v || "").trim();
+      else if (k === "short_rationale") draft.rationale = String(v || "").trim();
+      else return;
+      if (draft.letter) emitTrust({ phase: "draft", draft: { ...draft }, clinicalPending: true });
+    };
+    const call = (plan) => runOneCall({ apiKey, system, parts, level: route.level, deep: deepMode, plan, signal: sig, onField,
+      onChunk: (t) => { chars = t.length; if (!over && !sig.aborted) onUpdate("reason", { explanation: null, tricks: null }, { chars, model: "", final: false }); },
+      onNotice: onNotice ? (x) => onNotice("reason", x) : undefined });
+    (async () => {
+      /* the OUTPUT GUARD of the older pipeline, on every text part: prompt leaks, Arabic spelling, foreign-script glitches, spacing, tangled lines */
+      const clean = (r) => { const p = polishReply(r.out, { system, userText: parts.map((x) => x.text || "").join("\n") }); return { ...r, out: p.out, lang: p.stats }; };
+      const check = (r) => postCheck(r.out, { stem: srcText, language: { ...r.lang, rewrite: r.lang.badness >= REWRITE_AT } });
+      /* a contradiction always earns the one escalation; a language-only problem only while the guard's rewrite budget (4 per 10 minutes) allows it */
+      const langOnly = (p) => p.issues.filter((i) => i.severity === "high").every((i) => i.code === "language-quality");
+      let res = clean(await call(null)), pc = check(res), requests = res.requests, review = false;
+      if (pc.escalate && !deepMode && !sig.aborted && (!langOnly(pc) || allowRetry())) {
+        /* the deterministic check found a contradiction: ONE request to the stronger model (never more) */
+        try {
+          const again = clean(await call(planFor({ deep: true, level: "medium" }).slice(0, 1)));
+          requests += again.requests;
+          const pc2 = postCheck(again.out, { stem: srcText, language: { ...again.lang, rewrite: false } });
+          if (!pc2.escalate) { res = again; pc = pc2; } else review = true;
+        } catch (e) { if (isAbort(e) || sig.aborted) return; review = true; requests += 1; }
+      } else if (pc.escalate && !langOnly(pc)) review = true;
+      if (over || sig.aborted) return;
+      over = true;
+      const { explanation, tricks } = composeLesson(pc.out, headingsFor(chips), { tier });
+      const brief = makeBrief(pc.out);
+      takeBrief({ text: brief });                                                     // the same assessment / banner the old solve stage produced
+      if (review && assess) { assess.concerns = [...(assess.concerns || []), reviewConcern]; assess.flags = [...(assess.flags || []), { code: reviewConcern.code, msg: reviewConcern.en }]; }
+      const note2 = res.partial ? "\n\n## ⚠️ الإجابة غير مكتملة\nتعذر إكمال جزء من التحليل بسبب خطأ أثناء التوليد. لا تعتمد هذا النص كإجابة نهائية؛ أعد المحاولة أو استخدم مصدرًا موثوقًا/مراجعًا مختصًا." : "";
+      onUpdate("reason", { explanation: explanation + note2, tricks }, { chars: res.text.length, model: res.model, final: true });
+      onDone("reason", { ms: since(), chars: res.text.length, model: res.model, requests, level: res.level, tier, language: res.lang, issues: pc.issues.map((i) => i.code), stages: { solve: secs(res.ttfaMs || 0), total: secs(since()) } });
+    })().catch((err) => { if (isAbort(err) || sig.aborted) return; fail(err); });
+  }
+
   /* one path per question: the mode the student picked decides everything (no automatic rating, no rerouting) */
   const dispatchReason = () => {
     if (sliced) runReasonSliced();
+    else if (FLAGS.oneCall && !L) runReasonOne();
     else if (LESSON_MODE === "single" || mode.single) runReasonSingle();
     else if (LESSON_MODE === "split") runReasonSplit();
     else runReasonFast();

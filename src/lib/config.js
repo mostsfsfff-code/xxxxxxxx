@@ -4,8 +4,12 @@
    Change it WITHOUT touching the code: put VITE_GEMINI_MODEL=gemini-3.5-flash-lite (or any other Flash model id) in `.env`
    (or in the GitHub workflow env next to VITE_GEMINI_API_KEY) and rebuild. Same for the strong "deep" model: VITE_GEMINI_MODEL_PRO.
    If Google says a model is retired / unavailable for your key, the app drops it and moves to the "-latest" aliases by itself. */
+import { MODELS, isBannedModel } from "./models.js";
+
 const ENV = (typeof import.meta !== "undefined" && import.meta.env) || (typeof globalThis !== "undefined" && globalThis.__CLINIX_ENV__) || {};   // __CLINIX_ENV__: lets the Node tests choose a profile (Vite replaces import.meta.env at build time)
-export const MODEL_FAST = String(ENV.VITE_GEMINI_MODEL || "gemini-flash-latest").trim();
+/* v3.84: fixed official names only (models.js). An env value that names a "-latest" alias or a retired model is ignored. */
+const fixedModel = (v, d) => { const s = String(v || "").trim(); return s && !isBannedModel(s) ? s : d; };
+export const MODEL_FAST = fixedModel(ENV.VITE_GEMINI_MODEL, MODELS.primary);
 /* How the lesson (explanation + traps) is produced — VITE_LESSON_MODE in .env:
    "fast"   (default) silent solve → part A ∥ part B-main ∥ part B-traps: three SHORT streams at the same time. Fastest. 6 requests per analysis.
    "split"  part A ∥ part B (B solves by itself, which makes it the slow one). 4 requests per analysis.
@@ -17,7 +21,14 @@ export const LESSON_MODE = ["fast", "split", "single"].includes(String(ENV.VITE_
 export const LESSON_SLICES = (() => { const n = parseInt(String(ENV.VITE_LESSON_SLICES ?? "3"), 10); return Number.isFinite(n) ? Math.min(5, Math.max(0, n)) : 3; })();
 /* material smaller than this (about N pages) keeps the old flow: it is already quick, and fewer requests are kept for the quota */
 export const SLICE_MIN_PAGES = (() => { const n = parseFloat(String(ENV.VITE_SLICE_MIN_PAGES ?? "5")); return Number.isFinite(n) ? Math.max(1, n) : 5; })();
-export const MODEL_PRO = String(ENV.VITE_GEMINI_MODEL_PRO || "gemini-pro-latest").trim();
+export const MODEL_PRO = fixedModel(ENV.VITE_GEMINI_MODEL_PRO, MODELS.escalation);
+/* v3.84 · the quota-first question path: ONE streaming request per question (lib/one-call.js). Default ON; VITE_ONE_CALL=0 is the emergency switch back to the old pipeline.
+   ANSWER_FIRST shows the answer letter + its one-line reason, labelled "preliminary", as soon as they stream in, before the final checks end (VITE_ANSWER_FIRST=0 hides it). */
+const on = (v, d) => (v === undefined || v === null || v === "" ? d : !["0", "false", "off", "no"].includes(String(v).toLowerCase()));
+export const ONE_CALL = on(ENV.VITE_ONE_CALL, true);
+export const ANSWER_FIRST = on(ENV.VITE_ANSWER_FIRST, true);
+/* mutable on purpose: the tests flip them (the legacy pipeline stays reachable through the emergency switch) */
+export const FLAGS = { oneCall: ONE_CALL, answerFirst: ANSWER_FIRST };
 
 /* ── v3.32 · where the AI traffic goes, and how patient the app is ──
    FREE profile (default): the Google free tier is slow and uneven on purpose (low priority, tiny per-model quotas, requests that sit in a queue for a
@@ -37,9 +48,12 @@ export const API_BASE_URL = String(ENV.VITE_API_BASE || (GATEWAY_URL ? `${GATEWA
 export const API_ORIGIN = API_BASE_URL.replace(/\/v1beta\/models\/?$/, "");
 
 /* every waiting time of the engine in one table. `cap(ms, kind)` shortens a timeout in the PAID profile and leaves it alone in the FREE one */
+/* v3.84 · Zero-Sleep: when every lane is asleep the engine says "busy" after at most 4 s of waiting (it used to wait up to 40 s on a free key) and a second lane is never
+   raced against a silent one (HEDGING = false: a hedge is a duplicate request, and a free key pays for every request). A failed lane hands over to the next at once. */
+export const HEDGING = false;
 export const NET = PAID
-  ? { firstCap: 60000, idleCap: 60000, hedge: 0.5, maxWait: 15000, maxHint: 12000, imageMs: 80000, imageTimeouts: 2 }
-  : { firstCap: Infinity, idleCap: Infinity, hedge: 1, maxWait: 40000, maxHint: 25000, imageMs: 170000, imageTimeouts: 3 };     // free: patient everywhere, but three silent image models in a row is where the waiting stops (it used to be: ALL of them, 170 s each)
+  ? { firstCap: 60000, idleCap: 60000, hedge: 0.5, maxWait: 4000, maxHint: 4000, imageMs: 80000, imageTimeouts: 2 }
+  : { firstCap: Infinity, idleCap: Infinity, hedge: 1, maxWait: 4000, maxHint: 4000, imageMs: 170000, imageTimeouts: 3 };     // free: patient everywhere, but three silent image models in a row is where the waiting stops (it used to be: ALL of them, 170 s each)
 export const cap = (ms, kind) => (Number.isFinite(ms) ? Math.min(ms, kind === "idle" ? NET.idleCap : NET.firstCap) : ms);
 
 export const CHIPS = [

@@ -1,4 +1,5 @@
-/* v3.43 · B2 plumbing: the solve request asks for logprobs and the stream's logprobsResult comes back; a model that refuses them costs no extra student-visible request. */
+/* v3.84: responseLogprobs is deprecated on Gemini 3.x and is never sent to it (tests/v384-one-call.test.mjs proves that); this file keeps the plumbing honest for a 2.x model, the only family still probed.
+   v3.43 · B2 plumbing: the solve request asks for logprobs and the stream's logprobsResult comes back; a model that refuses them costs no extra student-visible request. */
 import test from "node:test";
 import assert from "node:assert/strict";
 import * as R from "../src/lib/router.js";
@@ -26,16 +27,16 @@ globalThis.fetch = async (url, init = {}) => {
   ];
   return new Response(new ReadableStream({ start(c) { chunks.forEach((x) => c.enqueue(enc.encode(x))); c.close(); } }), { status: 200 });
 };
-const args = (task) => ({ apiKey: "AIzaLPTEST0000001", task, system: "s", parts: [{ text: "q" }], spec: { levels: ["low"], budget: 0 }, maxOut: 2000, firstMs: 3000, idleMs: 3000, models: ["gemini-3.8-flash"] });
+const args = (task) => ({ apiKey: "AIzaLPTEST0000001", task, system: "s", parts: [{ text: "q" }], spec: { levels: ["low"], budget: 0 }, maxOut: 2000, firstMs: 3000, idleMs: 3000, models: ["gemini-2.5-flash"] });
 const fresh = () => { sent.length = 0; refuse = false; omit = false; delayMs = 0; R.__resetRouter(); window.localStorage.clear(); __resetLogprobMemo(MODEL); };
-const MODEL = "gemini-3.8-flash";
+const MODEL = "gemini-2.5-flash";
 const lpMemoOf = (m = MODEL) => window.localStorage.getItem(`clinix:lp:${m}`);
 import * as Q from "../src/lib/quota.js";
 /* evidence of a BIG quota (more requests accepted by one Flash model than the free tier allows) → the key is no longer "small" */
 const makeBig = (key, model) => { for (let i = 0; i < 30; i++) Q.noteSend(key, model); assert.equal(Q.isSmallKey(key), false); };
 
 test("solve asks for logprobs, they come back through the stream, and feed the assessment", async () => {
-  fresh(); makeBig("AIzaLPTEST0000001", "gemini-3.8-flash");
+  fresh(); makeBig("AIzaLPTEST0000001", "gemini-2.5-flash");
   const r = await runTask(args("solve:deep"));
   assert.equal(sent.length, 1, "one request");
   assert.equal(sent[0].responseLogprobs, true); assert.equal(sent[0].logprobs, 5);
@@ -51,14 +52,14 @@ test("other tasks never ask for logprobs", async () => {
 });
 
 test("a model that refuses logprobs: the same request repeats without them once, and it is never asked again", async () => {
-  fresh(); refuse = true; makeBig("AIzaLPTEST0000001", "gemini-3.8-flash");
+  fresh(); refuse = true; makeBig("AIzaLPTEST0000001", "gemini-2.5-flash");
   const r = await runTask(args("solve:deep"));
   assert.equal(sent.length, 2); assert.equal(sent[1].responseLogprobs, undefined);
   assert.ok(r.text.includes("ANSWER: B"));
   sent.length = 0;
   await runTask(args("solve:deep"));
   assert.equal(sent.length, 1); assert.equal(sent[0].responseLogprobs, undefined, "remembered");
-  __resetLogprobMemo("gemini-3.8-flash");
+  __resetLogprobMemo("gemini-2.5-flash");
 });
 
 /* ── audit fix #2: ONE probe per model, small free keys included; every outcome is cached; nothing is invented ── */

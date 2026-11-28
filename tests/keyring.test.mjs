@@ -12,7 +12,7 @@ const C1 = "sk-ant-api03-RINGCLAUDE0000000000000001", C2 = "sk-ant-api03-RINGCLA
 const O1 = "sk-proj-RINGOPENAI000000000000000001";
 const fresh = () => { reset(); R.__resetRouter(); window.localStorage.clear(); Ring.__resetKeyring(); Ring.__setClock(); setExtKeys({}); setEnginePrefs({ mode: "auto", slice: true, search: false }); };
 const reqs = () => log.filter((l) => l.lane !== "list");
-const GEM_MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-pro-latest", "gemini-3.1-pro-preview"];
+const GEM_MODELS = ["gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-3.1-pro-preview"];
 const scriptAll = (key, step) => GEM_MODELS.forEach((m) => script(`gemini:${m}#${key}`, step));
 
 test("detectProvider: one box, any key: the app knows whose it is", () => {
@@ -117,7 +117,7 @@ test("ring · Gemini: the daily quota of key 1 finishes → key 2 answers at onc
   const out = await askChat({ apiKey: G1, history: [{ role: "user", text: "explain heparin in one line" }], ctx: { kind: "global" }, onText() {} });
   assert.ok(out.text); assert.ok(Date.now() - t0 < 6000, "no long wait: " + (Date.now() - t0));
   assert.equal(reqs().pop().key, G2);
-  const pen = Ring.penaltyOf(G1, "mid");                    // v3.35: "explain …" is not an easy question → it starts on the middle model; only that size is put aside, not the whole key
+  const pen = Ring.penaltyOf(G1, "weak");                   // v3.84: every ordinary question starts on the Flash-Lite family (the weak tier); only that size is put aside, not the whole key
   assert.equal(pen.why, "day"); assert.ok(pen.until - Date.now() > 60_000, "put aside until the daily reset");
   const n = reqs().length;
   await askChat({ apiKey: G1, history: [{ role: "user", text: "explain warfarin in one line" }], ctx: { kind: "global" }, onText() {} });
@@ -219,14 +219,14 @@ test("addApiKey: pasted, recognised, checked with its company, added; a wrong ke
 
 /* ── v3.35 · tier first, then key ── */
 import { runTask } from "../src/lib/gemini.js";
-const LITE = "gemini-flash-lite-latest", FLASH = "gemini-flash-latest", PRO = "gemini-pro-latest";
+const LITE = "gemini-3.5-flash-lite", FLASH = "gemini-3.6-flash", PRO = "gemini-3.1-pro-preview";   // the strong tier is a Pro-named model (the app itself no longer lists one; the tier logic is generic)
 const job = (models, task = "words") => runTask({ apiKey: G1, models, task, system: "s", parts: [{ text: "hi" }], spec: { levels: ["low"], budget: 0 }, maxOut: 1000, signal: new AbortController().signal, onText() {} });
 const DAILY = { status: 429, msg: "You exceeded your current quota, limit: 20 per day", details: [{ violations: [{ quotaId: "GenerateRequestsPerDayPerProjectPerModel-FreeTier", quotaValue: "20" }] }] };
 
 test("tiers: tierOf / weakFirst / tierStages", () => {
-  assert.equal(R.tierOf("gemini-flash-lite-latest"), "weak"); assert.equal(R.tierOf("gemini-3.1-pro-preview"), "strong"); assert.equal(R.tierOf("gemini-3-flash-preview"), "mid");
+  assert.equal(R.tierOf("gemini-3.5-flash-lite"), "weak"); assert.equal(R.tierOf("gemini-3.1-pro-preview"), "strong"); assert.equal(R.tierOf("gemini-3-flash-preview"), "mid");
   assert.deepEqual(R.weakFirst([FLASH, PRO, LITE, "gemini-3-flash-preview"]), [LITE, FLASH, "gemini-3-flash-preview", PRO]);
-  assert.deepEqual(R.tierStages([PRO, FLASH, LITE, "gemini-3.1-pro-preview"]).map((x) => [x.tier, x.models.length]), [["strong", 2], ["mid", 1], ["weak", 1]]);
+  assert.deepEqual(R.tierStages([PRO, FLASH, LITE, "gemini-3.2-pro-preview"]).map((x) => [x.tier, x.models.length]), [["strong", 2], ["mid", 1], ["weak", 1]]);
 });
 
 test("tiers · the weak model of key 1 is finished → the weak job goes to the weak model of key 2, and key 1's strong model is NOT touched", async () => {

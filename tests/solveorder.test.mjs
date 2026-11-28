@@ -135,7 +135,7 @@ const G = (m) => `gemini:${m}`;
 const fresh = () => { KEY = `AIzaSOL${String(++seq).padStart(8, "0")}`; reset(); RT.__resetRouter(); window.localStorage.clear(); setExtKeys({}); setEnginePrefs({ mode: "auto" }); };
 test("end to end: visual transcription precedes solve, the premise rides in the brief, and the solve plus writers retain their expected request order", async () => {
   fresh();
-  script(G("gemini-flash-latest"), { ok: "PREMISE: PREMMARK-5521 unstable patient.\nANSWER: B\nTYPE: priority\nKEYWORD: FIRST\nCONCEPTS: a; b\nOPTIONS:\nA) ❌ x\nB) ✅ y\nCONFIDENCE: high" });
+  script(G("gemini-3.5-flash-lite"), { ok: "PREMISE: PREMMARK-5521 unstable patient.\nANSWER: B\nTYPE: priority\nKEYWORD: FIRST\nCONCEPTS: a; b\nOPTIONS:\nA) ❌ x\nB) ✅ y\nCONFIDENCE: high" });
   const done = {}, trust = [];
   await new Promise((resolve) => {
     const a = createAnalysis({ kind: "question", history: [], dataUrl: "data:image/png;base64,iVBORw0KGgo=", doc: null, extra: "", chips: [], apiKey: KEY, modeId: "balanced",

@@ -63,12 +63,12 @@ test("the daily message that says 'retry in 20s' is NOT taken as 'busy for 20 s'
   assert.equal(count(G(LITE)), 3);
 });
 
-test("a name that is the same quota is finished too: Google names gemini-3.8-flash while the app called gemini-flash-latest", async () => {
+test("a name that is the same quota is finished too: Google names gemini-3.8-flash while the app called gemini-3.6-flash", async () => {
   fresh();
-  script(G("gemini-flash-latest"), DAILY(FLASH));
+  script(G("gemini-3.6-flash"), DAILY(FLASH));
   script(G(FLASH), { ok: "must not be called" });
   script(G(LITE), { ok: "lite" });
-  const r = await runTask(base({ models: ["gemini-flash-latest", FLASH, LITE] }));
+  const r = await runTask(base({ models: ["gemini-3.6-flash", FLASH, LITE] }));
   assert.equal(r.text, "lite");
   assert.equal(count(G(FLASH)), 0, "the alias's quota is the same quota: calling the other name would only fail again");
   assert.equal(Q.finishedToday(KEY, FLASH), true);
@@ -130,7 +130,7 @@ test("between equal models the one with more daily quota left goes first (the da
 test("QUESTION ANALYSIS: visual-question transcription is completed before solve; the verified brief reaches each configured writer", async () => {
   const BRIEF = "ANSWER: B\nKEY: BRIEFMARK-7731 the verified reasoning";             // what the silent solve returns: cleanBrief accepts it, so the verified path runs
   const run = async () => {
-    script(G("gemini-flash-latest"), { ok: BRIEF });
+    script(G("gemini-3.5-flash-lite"), { ok: BRIEF });
     const done = {};
     await new Promise((resolve) => {
       const a = createAnalysis({
@@ -149,7 +149,7 @@ test("QUESTION ANALYSIS: visual-question transcription is completed before solve
 
   fresh();
   /* evidence of a big quota (a learned per-minute limit of a paid size) → the fully parallel design of old: 5 requests, brief in both writers */
-  Q.noteQuotaError(KEY, "gemini-flash-latest", Q.parseQuota({ details: quotaErr("GenerateRequestsPerMinutePerProjectPerModel-FreeTier", 1000, "gemini-flash-latest", "5s").details }, ""));
+  Q.noteQuotaError(KEY, "gemini-3.6-flash", Q.parseQuota({ details: quotaErr("GenerateRequestsPerMinutePerProjectPerModel-FreeTier", 1000, "gemini-3.6-flash", "5s").details }, ""));
   assert.equal(Q.isSmallKey(KEY), false);
   const big = await run();
   assert.deepEqual(big, { total: 6, withBrief: 2 }, "big key: transcript · words · solve · A · B-main · B-traps");
@@ -158,11 +158,11 @@ test("QUESTION ANALYSIS: visual-question transcription is completed before solve
 test("QUESTION ANALYSIS: when the strong models are nearly spent today, the word list goes to Flash-Lite and the strong model is kept for the rest", async () => {
   fresh();
   /* flash-latest: limit 20 learned on an earlier day; 10 requests already sent today → 10 left (≤ 12) = scarce */
-  Q.noteQuotaError(KEY, "gemini-flash-latest", Q.parseQuota({ details: DAILY("gemini-flash-latest").details }, ""));
+  Q.noteQuotaError(KEY, "gemini-3.6-flash", Q.parseQuota({ details: DAILY("gemini-3.6-flash").details }, ""));
   const nextDay = Date.now() + 36 * 3600e3;
   Q.__setClock(() => nextDay);
-  for (let i = 0; i < 10; i++) Q.noteSend(KEY, "gemini-flash-latest");
-  assert.equal(Q.isScarce(KEY, ["gemini-flash-latest", "gemini-flash-lite-latest"]), true);
+  for (let i = 0; i < 10; i++) Q.noteSend(KEY, "gemini-3.6-flash");
+  assert.equal(Q.isScarce(KEY, ["gemini-3.6-flash", "gemini-3.5-flash-lite"]), true);
   await new Promise((resolve) => {
     const done = {};
     const a = createAnalysis({
@@ -173,8 +173,8 @@ test("QUESTION ANALYSIS: when the strong models are nearly spent today, the word
   });
   const lanes = used();
   /* v3.35: the word list is an EASY job: Flash-Lite first, always (not only when the quota is scarce). v3.40.10: the question text is not requested at all any more. */
-  assert.equal(lanes.filter((l) => l === G("gemini-flash-lite-latest")).length, 1, "the word list went to Flash-Lite");
-  assert.ok(lanes.filter((l) => l === G("gemini-flash-latest")).length >= 2, "solve + the lesson parts stayed on the stronger model");
+  assert.ok(lanes.filter((l) => l === G("gemini-3.5-flash-lite")).length >= 3, "v3.84: the whole daily work (words, solve, lesson parts) runs on the Flash-Lite family");
+  assert.equal(lanes.filter((l) => l === G("gemini-3.6-flash")).length, 0, "the scarce standard Flash is kept for the rare escalation: it is never used for the daily work");
 });
 
 test("EVERY model has finished its daily quota: the student gets the true answer at once (no 40 s of waiting), and the next request does not even try", async () => {
@@ -196,18 +196,17 @@ test("EVERY model has finished its daily quota: the student gets the true answer
   assert.equal(used().length, 0, "nothing was sent to a model that is known to be finished");
 });
 
-test("ADAPTIVE HEDGE: once this key's typical answer time is known, a request that has plainly stalled is given up on after 3x that, not after a fixed 10-30 s", async () => {
+test("NO ADAPTIVE HEDGE (v3.84): even when this key's typical answer time is known, a slow request is never raced by a second model", async () => {
   fresh();
-  R.HEDGE_MS.write = { min: 5000, max: 20000 };               // the fixed numbers of old: a stalled request would be waited on for at least 5 s
+  R.HEDGE_MS.write = { min: 100, max: 200 };
+  R.HEDGE_FLOOR_MS.v = 100;
   try {
-    R.HEDGE_FLOOR_MS.v = 100;
-    for (let i = 0; i < 5; i++) { Q.noteTtft(KEY, FLASH, 40, "write"); Q.noteTtft(KEY, FLASH2, 40, "write"); }      // this key answers 'write' jobs in ~40 ms (the fake is instant)
-    script(G(FLASH), { wait: 4000, ok: "stalled" });
-    script(G(FLASH2), { ok: "fast second" });
-    const t0 = Date.now();
-    const r = await runTask(base({ task: "lessonA:balanced", models: [FLASH, FLASH2] }));
-    assert.equal(r.text, "fast second");
-    assert.ok(Date.now() - t0 < 1500, `hedged after ~120 ms instead of 5 s (took ${Date.now() - t0} ms)`);
+    for (let i = 0; i < 5; i++) { Q.noteTtft(KEY, FLASH, 40, "write"); Q.noteTtft(KEY, FLASH2, 40, "write"); }
+    script(G(FLASH), { wait: 900, ok: "slow but alive" });
+    script(G(FLASH2), { ok: "second" });
+    const r = await runTask(base({ task: "lessonA:balanced", models: [FLASH, FLASH2], firstMs: 20000, idleMs: 20000 }));
+    assert.equal(r.text, "slow but alive", "the first lane was waited on, not raced");
+    assert.equal(used().length, 1, "exactly one request: no duplicate was paid for");
   } finally { R.HEDGE_FLOOR_MS.v = 5000; }
 });
 

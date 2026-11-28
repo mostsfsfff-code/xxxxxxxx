@@ -19,7 +19,7 @@ export function verifyText({ text, source = "", sourceModel = null, profile, par
   const model = sourceModel || buildSourceModel({ items: source && source.trim() ? [{ t: "text", name: "source", text: source }] : [] });
   const clean = model.text;
   const idxText = part === "B" ? clean + "\n" + (brief || "") : clean;
-  if (part === "A") text = repairDecode(text, clean);                      // v3.82: stem sentences the model dropped from "decode the English" are put back verbatim
+  text = repairDecode(text, clean);                      // v3.82: stem sentences the model dropped from "decode the English" are put back verbatim (a question's whole answer runs as Part B, so no part check)
   const res = analyze(text, { index: idxText.trim() ? indexSource(idxText) : null, part, titles, known: (s) => knownToKb(s, profile), locate: model.segments.length ? (s) => locate(model, s) : null });
   const { patches, gaps } = checkItems(res.items, { profile, now, patient, ground: part === "A" ? (c) => groundSentence(model, c) : null });
   /* the SOURCE itself against the KB, for every source type and both parts: "source says X, reference says Y" (the source is never silently rewritten) */

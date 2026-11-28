@@ -145,3 +145,23 @@ test("--resume duplicates: only the last record per key reaches the report", asy
   assert.equal(code, 0);
   assert.match(fs.readFileSync(path.join(out, "report.md"), "utf8"), /\| A\|low\|dict=on\|af \| 1 \| 0 \| 100\.0/);
 });
+
+test("smoke headroom uses the scaled first-byte limit", () => {
+  const rec = (level, ttfb) => ({ level, status: "ok", fallback: false, answer_first: true, thinking_tokens: 50, attempts: [{ status: 200, cat: null, ttfb_ms: ttfb }] });
+  const recs = [rec("minimal", 7000)];
+  const row = (scale) => B.smokeChecklist(recs, scale).find((r) => /^(PASS|FAIL)\s+minimal:/.test(r));
+  assert.match(row(1), /^FAIL/);                       // 7000 > 70% of 9000
+  assert.match(row(1.8), /^PASS/);                     // 7000 ≤ 70% of 16200
+  assert.match(row(1.8), /limit 16200/); assert.match(row(1.8), /median 7000/);
+  assert.deepEqual(B.FIRST_BYTE_MS, { minimal: 9000, low: 9000, medium: 16000, high: 25000 });
+});
+
+test("arm B runs only the glossary-OFF side and pairs it with arm A", async () => {
+  const { srv, port } = await start(0, { delayScale: 0.3, chaos: false }); const { dir, f } = tmpDataset(10);
+  try {
+    assert.equal(await quiet(() => B.main(common(dir, f, port, ["--arm", "A", "--levels", "low"]), { GEMINI_API_KEY: "x" })), 0);
+    assert.equal(await quiet(() => B.main(common(dir, f, port, ["--arm", "B", "--level", "low"]), { GEMINI_API_KEY: "x" })), 0);
+    const b = rd(path.join(dir, "out/results-b.jsonl")); assert.equal(b.length, 10); assert.ok(b.every((r) => r.dict === false && r.dict_hits.length === 0));
+    assert.match(fs.readFileSync(path.join(dir, "out/report.md"), "utf8"), /Glossary effect \(arm B vs arm A at low[^\n]*\n\npaired q: 10 /);
+  } finally { srv.closeAllConnections(); srv.close(); }
+});

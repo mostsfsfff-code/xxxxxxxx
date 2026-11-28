@@ -33,7 +33,7 @@ export async function runCase({ text = CASE_TEXT, respond, mode = "balanced", ki
   reset(); Router.__resetRouter(); window.localStorage.clear();
   setExtKeys({}); setEnginePrefs({ mode: "auto" });
   const isSolve = (b) => String(b?.systemInstruction?.parts?.[0]?.text || "").includes("PREMISE:");
-  script("gemini:gemini-flash-latest", { ok: (b) => respond(isSolve(b) ? "solve" : "write", b) });
+  script("gemini:gemini-3.5-flash-lite", { ok: (b) => respond(isSolve(b) ? "solve" : "write", b) });
   const trust = [], updates = [];
   await new Promise((resolve, reject) => {
     let finished = false; const done = new Set();

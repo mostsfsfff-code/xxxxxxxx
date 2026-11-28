@@ -97,12 +97,12 @@ test("a request Google rejected without doing the work is refunded (not counted 
   assert.equal(Q.paceMs(KEY, "gemini-3.8-flash"), 0, "the refunded request frees its slot");
 });
 
-test("two names, one quota: a 429 that names gemini-3.8-flash while we called gemini-flash-latest finishes BOTH", () => {
-  const r = Q.noteQuotaError(KEY, "gemini-flash-latest", Q.parseQuota(DAILY, DAILY.message));
+test("two names, one quota: a 429 that names gemini-3.8-flash while we called gemini-3.5-flash-lite finishes BOTH (two names Google reports as ONE quota)", () => {
+  const r = Q.noteQuotaError(KEY, "gemini-3.5-flash-lite", Q.parseQuota(DAILY, DAILY.message));
   assert.ok(r.deadMs > 0);
-  assert.equal(Q.finishedToday(KEY, "gemini-flash-latest"), true);
+  assert.equal(Q.finishedToday(KEY, "gemini-3.5-flash-lite"), true);
   assert.equal(Q.finishedToday(KEY, "gemini-3.8-flash"), true);
-  assert.deepEqual(Q.sameAs(KEY, "gemini-flash-latest").sort(), ["gemini-3.8-flash", "gemini-flash-latest"]);
+  assert.deepEqual(Q.sameAs(KEY, "gemini-3.5-flash-lite").sort(), ["gemini-3.5-flash-lite", "gemini-3.8-flash"]);
   assert.equal(Q.finishedToday(KEY, "gemini-3.6-flash"), false);
 });
 
@@ -136,7 +136,7 @@ test("a learned per-minute limit is forgotten after 12 h without a new 429 (the 
 });
 
 test("isScarce / orderForTask: when the Flash models are nearly spent the word list moves to Flash-Lite; every other job keeps its order", () => {
-  const models = ["gemini-flash-latest", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"];
+  const models = ["gemini-3.6-flash", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"];
   assert.equal(Q.isScarce(KEY, models), false, "nothing known yet: assume plenty");
   Q.noteQuotaError(KEY, "gemini-3.8-flash", Q.parseQuota(DAILY, DAILY.message));            // 3.8 finished; its alias with it
   assert.equal(Q.isScarce(KEY, models), false, "3.6 is still unknown: assume plenty");
@@ -150,7 +150,7 @@ test("isScarce / orderForTask: when the Flash models are nearly spent the word l
   assert.equal(Q.remaining(KEY, "gemini-3.8-flash"), 8);
   assert.equal(Q.remaining(KEY, "gemini-3.6-flash"), 2);
   assert.equal(Q.isScarce(KEY, models), true);
-  assert.deepEqual(Q.orderForTask(KEY, "words", models), ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-3.8-flash", "gemini-3.6-flash"]);
+  assert.deepEqual(Q.orderForTask(KEY, "words", models), ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash", "gemini-3.8-flash", "gemini-3.6-flash"]);
   for (const task of ["ocr", "solve:balanced", "lessonA:balanced", "lesson:chat", "exam:part"]) assert.deepEqual(Q.orderForTask(KEY, task, models), models, task);
   assert.deepEqual(Q.orderForTask(KEY, "words", ["gemini-3.8-flash"]), ["gemini-3.8-flash"], "no Lite model to move to: unchanged");
 });
@@ -169,7 +169,7 @@ test("budgetBias: no nudge while plenty is left or unknown; the nearer to empty,
 
 test("quotaNote: one honest sentence when something finished today, empty otherwise; the 'latest' alias is not listed twice", () => {
   assert.equal(Q.quotaNote(KEY), "");
-  Q.noteQuotaError(KEY, "gemini-flash-latest", Q.parseQuota(DAILY, DAILY.message));
+  Q.noteQuotaError(KEY, "gemini-3.6-flash", Q.parseQuota(DAILY, DAILY.message));
   const note = Q.quotaNote(KEY);
   assert.match(note, /الحصة اليومية المجانية خلصت على: 3\.8-flash/);
   assert.ok(!/latest/.test(note));

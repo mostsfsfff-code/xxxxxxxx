@@ -58,6 +58,10 @@ export function repairDecode(text, stem) {
   });
   const ins = [];                                                          // [lineIndexInBody, text]
   for (const [i, s] of missing) {
+    /* the model kept only the first part of this sentence in a chunk of its own ("aPTT: 96 seconds"): widen that chunk to the whole sentence, keep its meaning line */
+    const st = new Set(tokens(s));
+    const pj = body.findIndex((l, j) => where[j] === i && /\*\*[^*]+\*\*/.test(l) && (() => { const c = tokens(l.match(/\*\*([^*]+)\*\*/)[1]); return c.length && c.every((x) => st.has(x)); })());
+    if (pj >= 0) { body[pj] = body[pj].replace(/\*\*[^*]+\*\*/, `**${s.replace(/\*\*/g, "")}**`); continue; }
     let at = body.length;
     for (let j = 0; j < body.length; j++) if (where[j] >= i) { at = j; break; }
     ins.push([at, `- **${s.replace(/\*\*/g, "")}**`]);

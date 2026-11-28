@@ -38,21 +38,24 @@ test("a solve that hangs is cancelled at the box and the lesson is written at on
   const was = SOLVE_BOX.balanced; SOLVE_BOX.balanced = 300;
   try {
     /* flash-latest takes: part A (fast) · the solve (hangs 8 s) · the writer (fast) */
-    script(G("gemini-flash-latest"), { ok: "A text" }, { wait: 8000, ok: BRIEF }, { ok: "B text" });
+    script(G("gemini-3.5-flash-lite"), { ok: "A text" }, { wait: 8000, ok: BRIEF }, { ok: "B text" });
+    script(G("gemini-3.1-flash-lite"), { ok: "B text" });
     const t0 = Date.now();
     const r = await analyse();
     const ms = Date.now() - t0;
     assert.equal(r.err, undefined);
     assert.ok(ms < 4000, `finished in ${ms} ms (a hung solve used to hold the writers until it answered or timed out)`);
-    const lane = log.filter((l) => l.lane === G("gemini-flash-latest"));
-    assert.equal(lane.length, 3, "A · solve · writer");
-    assert.ok(!JSON.stringify(lane[2].body).includes("BRIEFMARK-9921"), "the writer started without the brief");
+    /* v3.84: the lane that hung is not asked again: later requests go to the other fast models at once (Zero-Sleep), so which lane carries which request is not fixed.
+       What matters: nobody waited for the hung solve, and no writer ever received its (late) brief. */
+    const bodies = log.filter((l) => l.lane !== "list").map((l) => JSON.stringify(l.body));
+    assert.ok(bodies.length >= 3, "transcription / A · solve · writer all went out");
+    assert.ok(!bodies.some((b) => b.includes("BRIEFMARK-9921")), "the writer started without the brief");
   } finally { SOLVE_BOX.balanced = was; }
 });
 
 test("a solve that answers inside the box keeps the verified path: the brief reaches the writer", async () => {
   fresh();
-  script(G("gemini-flash-latest"), { ok: BRIEF });
+  script(G("gemini-3.5-flash-lite"), { ok: BRIEF });
   const r = await analyse();
   assert.equal(r.err, undefined);
   assert.equal(log.filter((l) => l.lane !== "list" && JSON.stringify(l.body).includes("BRIEFMARK-9921")).length, 1);
